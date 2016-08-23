@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <None Include="Fixed-point ﬁnding function.fsx" />
     <None Include="Functional style Regex engine.fsx" />
   </ItemGroup>
   <PropertyGroup>
