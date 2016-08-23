@@ -51,12 +51,13 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <None Include="Clojure atom memoization example.fsx" />
+    <None Include="A Lazy fixed-point combinator.fsx" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
     <None Include="LazyList.fsx" />
     <Content Include="packages.config" />
     <None Include="Infinite sequences.fsx" />
+    <None Include="Clojure atom memoization example.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
