@@ -51,7 +51,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <None Include="Erik Lippert%27s Comma Quibbling.fsx" />
+    <None Include="Scrap Your Boilerplate.fsx" />
     <Content Include="packages.config" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
@@ -63,6 +63,7 @@
     <None Include="The repmin problem.fsx" />
     <None Include="Hughes%27s FuncList.fsx" />
     <None Include="Functional Unparsing SQL.fsx" />
+    <None Include="Erik Lippert%27s Comma Quibbling.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
