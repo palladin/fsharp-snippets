@@ -51,8 +51,8 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <None Include="Church numerals.fsx" />
     <Content Include="packages.config" />
+    <None Include="GC Friendly Fixpoint.fsx" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
     <None Include="LazyList.fsx" />
@@ -71,6 +71,7 @@
     <None Include="Scrap Your Boilerplate %28with class%29.fsx" />
     <None Include="HLists, Peano - Type-level computations.fsx" />
     <None Include="Monadic Trampoline.fsx" />
+    <None Include="Church numerals.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
