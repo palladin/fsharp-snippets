@@ -52,7 +52,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
-    <None Include="Yet another staged fixed-point combinator.fsx" />
+    <None Include="Type-level Fold.fsx" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
     <None Include="LazyList.fsx" />
@@ -78,6 +78,7 @@
     <None Include="Effects and Handlers.fsx" />
     <None Include="Normalisation by evaluation.fsx" />
     <None Include="Staged Fixed-point combinator.fsx" />
+    <None Include="Yet another staged fixed-point combinator.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
