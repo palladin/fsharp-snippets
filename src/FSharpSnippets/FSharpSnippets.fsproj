@@ -51,7 +51,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <None Include="Dining philosophers %28Joinads%29.fsx" />
+    <None Include="Scrap Your Boilerplate %28with class%29.fsx" />
     <Content Include="packages.config" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
@@ -67,6 +67,7 @@
     <None Include="Scrap Your Boilerplate.fsx" />
     <None Include="Polyvariadic fixpoint.fsx" />
     <None Include="n-ary Seq.map %28Numerals%29.fsx" />
+    <None Include="Dining philosophers %28Joinads%29.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
