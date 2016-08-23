@@ -51,7 +51,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <None Include="Functor - Applicative - Monad.fsx" />
+    <None Include="The repmin problem.fsx" />
     <Content Include="packages.config" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
@@ -59,6 +59,7 @@
     <None Include="Infinite sequences.fsx" />
     <None Include="Clojure atom memoization example.fsx" />
     <None Include="A Lazy fixed-point combinator.fsx" />
+    <None Include="Functor - Applicative - Monad.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
