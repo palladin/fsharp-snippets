@@ -52,7 +52,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
-    <None Include="Generic Numeric Literals and Compile time Peano arithmetic.fsx" />
+    <None Include="Clojure%27s Atoms.fsx" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
     <None Include="LazyList.fsx" />
@@ -80,6 +80,7 @@
     <None Include="Staged Fixed-point combinator.fsx" />
     <None Include="Yet another staged fixed-point combinator.fsx" />
     <None Include="Type-level Fold.fsx" />
+    <None Include="Generic Numeric Literals and Compile time Peano arithmetic.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
