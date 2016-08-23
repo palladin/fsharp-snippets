@@ -52,7 +52,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
-    <None Include="Effects and Handlers.fsx" />
+    <None Include="Normalisation by evaluation.fsx" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
     <None Include="LazyList.fsx" />
@@ -75,6 +75,7 @@
     <None Include="GC Friendly Fixpoint.fsx" />
     <None Include="Loop Unrolling.fsx" />
     <None Include="Session Types.fsx" />
+    <None Include="Effects and Handlers.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
