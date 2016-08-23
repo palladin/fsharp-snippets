@@ -52,7 +52,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
-    <None Include="GC Friendly Fixpoint.fsx" />
+    <None Include="Loop Unrolling.fsx" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
     <None Include="LazyList.fsx" />
@@ -72,6 +72,7 @@
     <None Include="HLists, Peano - Type-level computations.fsx" />
     <None Include="Monadic Trampoline.fsx" />
     <None Include="Church numerals.fsx" />
+    <None Include="GC Friendly Fixpoint.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
