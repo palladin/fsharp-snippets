@@ -44,8 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <None Include="Fixed-point ﬁnding function.fsx" />
+    <None Include="LazyList.fsx" />
     <None Include="Functional style Regex engine.fsx" />
+    <None Include="Fixed-point ﬁnding function.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
