@@ -1,2 +1,2 @@
 # fsharp-snippets
-Collection of F# snippets
+A collection of F# snippets for fun and ... just for fun!
