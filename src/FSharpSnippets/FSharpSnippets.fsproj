@@ -51,7 +51,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <None Include="Hughes%27s FuncList.fsx" />
+    <None Include="Functional Unparsing SQL.fsx" />
     <Content Include="packages.config" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
@@ -61,6 +61,7 @@
     <None Include="A Lazy fixed-point combinator.fsx" />
     <None Include="Functor - Applicative - Monad.fsx" />
     <None Include="The repmin problem.fsx" />
+    <None Include="Hughes%27s FuncList.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
