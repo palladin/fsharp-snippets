@@ -53,7 +53,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
     <None Include="Abstracting over %27M%27.fsx" />
-    <None Include="Y%28n%29 Polyvariadic fixpoint.fsx" />
+    <None Include="Unlambda.fsx" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
     <None Include="LazyList.fsx" />
@@ -93,6 +93,7 @@
     <None Include="n-ary Seq map.fsx" />
     <None Include="Bananas.fsx" />
     <None Include="Lazy Xml.fsx" />
+    <None Include="Y%28n%29 Polyvariadic fixpoint.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
