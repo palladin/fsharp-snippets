@@ -53,7 +53,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
     <None Include="Abstracting over %27M%27.fsx" />
-    <None Include="Norvig%27s Spelling Corrector.fsx" />
+    <None Include="Monadic Retry.fsx" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
     <None Include="LazyList.fsx" />
@@ -88,6 +88,7 @@
     <None Include="Actors acting as Lambdas.fsx" />
     <None Include="Type based Regex Active Patterns.fsx" />
     <None Include="Hughes%27s CPSFuncList.fsx" />
+    <None Include="Norvig%27s Spelling Corrector.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
