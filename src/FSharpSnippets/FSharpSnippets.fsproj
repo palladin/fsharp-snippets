@@ -53,7 +53,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
     <None Include="Abstracting over %27M%27.fsx" />
-    <None Include="Staged Ackermann.fsx" />
+    <None Include="Staged Regular Expression Matcher.fsx" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
     <None Include="LazyList.fsx" />
@@ -103,8 +103,13 @@
     <None Include="Type-level SAT solver.fsx" />
     <None Include="Lazy fixed-point and Infinite Streams.fsx" />
     <None Include="Stage your boilerplate.fsx" />
+    <None Include="Staged Ackermann.fsx" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="FSharp.Compiler.Service">
+      <HintPath>packages\FSharp.Compiler.Service.1.3.1.0\lib\net45\FSharp.Compiler.Service.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FSharp.PowerPack">
       <HintPath>packages\FSPowerPack.Core.Community.2.0.0.0\lib\Net40\FSharp.PowerPack.dll</HintPath>
       <Private>True</Private>
@@ -123,6 +128,10 @@
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="QuotationCompiler">
+      <HintPath>packages\QuotationCompiler.0.0.7-alpha\lib\net45\QuotationCompiler.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
