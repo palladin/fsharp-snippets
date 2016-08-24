@@ -53,7 +53,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
     <None Include="Abstracting over %27M%27.fsx" />
-    <None Include="Monadic Memoization.fsx" />
+    <None Include="Actors acting as Lambdas.fsx" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
     <None Include="LazyList.fsx" />
@@ -84,6 +84,7 @@
     <None Include="Generic Numeric Literals and Compile time Peano arithmetic.fsx" />
     <None Include="Clojure%27s Atoms.fsx" />
     <None Include="A simple Quine.fsx" />
+    <None Include="Monadic Memoization.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
