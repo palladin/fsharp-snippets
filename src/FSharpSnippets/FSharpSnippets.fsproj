@@ -53,7 +53,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
     <None Include="Abstracting over %27M%27.fsx" />
-    <None Include="Stage your boilerplate.fsx" />
+    <None Include="Staged Ackermann.fsx" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
     <None Include="LazyList.fsx" />
@@ -102,6 +102,7 @@
     <None Include="Delimited continuations.fsx" />
     <None Include="Type-level SAT solver.fsx" />
     <None Include="Lazy fixed-point and Infinite Streams.fsx" />
+    <None Include="Stage your boilerplate.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
