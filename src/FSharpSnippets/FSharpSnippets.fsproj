@@ -53,7 +53,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
     <None Include="Abstracting over %27M%27.fsx" />
-    <None Include="Async Choice.fsx" />
+    <None Include="Type Safe Higher-order abstract syntax.fsx" />
     <None Include="Functional style Regex engine.fsx" />
     <None Include="Fixed-point ﬁnding function.fsx" />
     <None Include="LazyList.fsx" />
@@ -95,6 +95,7 @@
     <None Include="Lazy Xml.fsx" />
     <None Include="Y%28n%29 Polyvariadic fixpoint.fsx" />
     <None Include="Unlambda.fsx" />
+    <None Include="Async Choice.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
