@@ -3,7 +3,7 @@
 // http://clojure.com/blog/2012/05/08/reducers-a-library-and-model-for-collection-processing.html
 
 
-#r "packages/\FSPowerPack.Parallel.Seq.Community.2.0.0.0/Lib/Net40/FSharp.PowerPack.Parallel.Seq.dll"
+#r "packages/FSPowerPack.Parallel.Seq.Community.2.0.0.0/Lib/Net40/FSharp.PowerPack.Parallel.Seq.dll"
 
 module Reducer =
     open System 
