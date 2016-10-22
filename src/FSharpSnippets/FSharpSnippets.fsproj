@@ -53,6 +53,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
     <None Include="Abstracting over %27M%27.fsx" />
+    <None Include="Quotations to A-Normal form.fsx" />
     <None Include="Staged CPS Regular Expression Matcher.fsx" />
     <None Include="Staged Reducers.fsx" />
     <None Include="Staged Regular Expression Matcher.fsx" />
