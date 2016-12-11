@@ -109,6 +109,7 @@
     <None Include="Reducers.fsx" />
     <None Include="Staged CPS Regular Expression Matcher.fsx" />
     <None Include="Staged parser combinators.fsx" />
+    <None Include="Staged Monoidal Folds.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Compiler.Service">
