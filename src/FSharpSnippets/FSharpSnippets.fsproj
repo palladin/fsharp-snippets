@@ -53,6 +53,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
     <None Include="Abstracting over %27M%27.fsx" />
+    <None Include="Lightweight Staged Numeric code.fsx" />
     <None Include="Equality Type.fsx" />
     <None Include="Staged Functional Unparsing.fsx" />
     <None Include="Quotations to A-Normal form.fsx" />
