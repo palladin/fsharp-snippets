@@ -34,4 +34,3 @@ let rec fix (f : Expr<('T -> 'R) -> ('T -> 'R)>) =
 let fact = fix (lam (fun f -> lam (fun y -> lift (if eval y = 0 then 1 else eval y * (eval f) (eval y - 1)))))
     
 eval fact 4
-Copy linkCopy sourceRaw viewLoad in New version
