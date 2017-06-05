@@ -53,7 +53,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
     <None Include="Abstracting over %27M%27.fsx" />
-    <None Include="Staged HOAS.fsx" />
+    <None Include="Staged Free Monads.fsx" />
     <None Include="Lightweight Staged Numeric code.fsx" />
     <None Include="Equality Type.fsx" />
     <None Include="Staged Functional Unparsing.fsx" />
@@ -113,6 +113,7 @@
     <None Include="Staged CPS Regular Expression Matcher.fsx" />
     <None Include="Staged parser combinators.fsx" />
     <None Include="Staged Monoidal Folds.fsx" />
+    <None Include="Staged HOAS.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Compiler.Service">
