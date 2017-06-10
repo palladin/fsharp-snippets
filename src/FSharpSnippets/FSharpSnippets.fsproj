@@ -114,6 +114,7 @@
     <None Include="Staged parser combinators.fsx" />
     <None Include="Staged Monoidal Folds.fsx" />
     <None Include="Staged HOAS.fsx" />
+    <None Include="From Löb%27s Theorem to Spreadsheet Evaluation.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Compiler.Service">
