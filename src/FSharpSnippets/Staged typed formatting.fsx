@@ -1,4 +1,4 @@
-﻿// Staged typed formating, based on http://okmij.org/ftp/ML/GADT.txt, https://www.cl.cam.ac.uk/~jdy22/papers/modular-macros.pdf
+﻿// Staged typed formatting, based on http://okmij.org/ftp/ML/GADT.txt, https://www.cl.cam.ac.uk/~jdy22/papers/modular-macros.pdf
 
 #r "packages/FSharp.Compiler.Service.1.3.1.0/lib/net45/FSharp.Compiler.Service.dll"
 #r "packages/QuotationCompiler.0.0.7-alpha/lib/net45/QuotationCompiler.dll"
