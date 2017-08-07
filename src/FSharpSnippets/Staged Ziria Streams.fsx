@@ -7,9 +7,6 @@ open System
 open QuotationCompiler
 open Microsoft.FSharp.Quotations
 
-open System
-open Microsoft.FSharp.Quotations
-
 // helper functions
 let counter = ref 0
 let rec generateVars (types : Type list) : Var list = 

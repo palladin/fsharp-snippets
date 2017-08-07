@@ -44,23 +44,23 @@ and Lambda<'T> =
 
 type Value<'T>(value : Expr<'T>) =
     interface Exp<'T> with
-        member sekf.Invoke lambda = lambda.Invoke(refl (), value) 
+        member self.Invoke lambda = lambda.Invoke(refl (), value) 
 
 type Tup<'T, 'S>(first : Exp<'T>, second : Exp<'S>) =
     interface Exp<'T * 'S> with
-        member sekf.Invoke lambda = lambda.Invoke(refl (), first, second)
+        member self.Invoke lambda = lambda.Invoke(refl (), first, second)
 
 type Lam<'T, 'S>(f : Exp<'T> -> Exp<'S>) =
     interface Exp<'T -> 'S> with
-        member sekf.Invoke lambda = lambda.Invoke(refl (), f)
+        member self.Invoke lambda = lambda.Invoke(refl (), f)
 
 type App<'T, 'S>(f : Exp<'T -> 'S>, x : Exp<'T>) =
     interface Exp<'S> with
-        member sekf.Invoke lambda = lambda.Invoke(refl (), f, x)
+        member self.Invoke lambda = lambda.Invoke(refl (), f, x)
 
 type Rec<'T, 'S>(f : Exp<('T -> 'S) -> ('T -> 'S)>) =
     interface Exp<'T -> 'S> with
-        member sekf.Invoke lambda = lambda.Invoke(refl (), f)
+        member self.Invoke lambda = lambda.Invoke(refl (), f)
     
 // helper combinators
 let lift (value : Expr<'T>) : Exp<'T> = 
