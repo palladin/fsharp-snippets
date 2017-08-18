@@ -122,6 +122,7 @@
     <Compile Include="Static.fs" />
     <None Include="Staged Parallel Ziria Streams.fsx" />
     <None Include="yin-yang puzzle.fsx" />
+    <None Include="Evens and Odds via Z3.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Compiler.Service">
@@ -142,6 +143,10 @@
     </Reference>
     <Reference Include="FSharp.PowerPack.Parallel.Seq">
       <HintPath>packages\FSPowerPack.Parallel.Seq.Community.2.0.0.0\lib\Net40\FSharp.PowerPack.Parallel.Seq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Z3">
+      <HintPath>packages\z3x64win.4.5.0.1\lib\Microsoft.Z3.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
