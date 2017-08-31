@@ -53,6 +53,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Content Include="packages.config" />
     <None Include="Abstracting over %27M%27.fsx" />
+    <None Include="Countdown.fsx" />
     <None Include="Staged Trampoline.fsx" />
     <None Include="Staged typed formatting.fsx" />
     <None Include="From Löb%27s Theorem to Spreadsheet Evaluation %28memoized%29.fsx" />
