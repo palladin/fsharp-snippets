@@ -124,6 +124,7 @@
     <None Include="Staged Parallel Ziria Streams.fsx" />
     <None Include="yin-yang puzzle.fsx" />
     <None Include="Evens and Odds via Z3.fsx" />
+    <None Include="Eternity2.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Compiler.Service">
