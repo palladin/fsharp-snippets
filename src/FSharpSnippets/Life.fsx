@@ -72,20 +72,20 @@ let getNeighborhoods : Expr[][] -> int -> int -> Expr list = fun board i j ->
         [board.[i - 1].[j - 1]; board.[i - 1].[j]; board.[i - 1].[j + 1]; 
          board.[i + 1].[j - 1]; board.[i + 1].[j]; board.[i + 1].[j + 1];
          board.[i].[j - 1]; board.[i].[j + 1] ]
-    
-let countNeighborhoods : Expr[][] -> int -> int -> BitVecExpr -> BoolExpr = fun board i j c ->
-    let rec count : Expr list -> BitVecExpr -> BoolExpr = fun exprs c ->
-        match exprs with
-        | [] -> Eq c (Int 0 4u)
-        | expr :: exprs ->
-            let c' = FreshVar 4u 
-            let ite = 
-                Ite (Eq expr (Int 1 1u)) 
-                    (Eq c (Add c' (Int 1 4u)))
-                    (Eq c c') :?> _
-            And [|ite; count exprs c'|]
-        
-    count (getNeighborhoods board i j) c
+
+let rec count : Expr list -> uint32 -> BitVecExpr -> BoolExpr = fun exprs w c ->
+    match exprs with
+    | [] -> Eq c (Int 0 w)
+    | expr :: exprs ->
+        let c' = FreshVar w
+        let ite = 
+            Ite (Eq expr (Int 1 1u)) 
+                (Eq c (Add c' (Int 1 w)))
+                (Eq c c') :?> _
+        And [|ite; count exprs w c'|]
+
+let countNeighborhoods : Expr[][] -> int -> int -> BitVecExpr -> BoolExpr = fun board i j c ->        
+    count (getNeighborhoods board i j) 4u c
     
     
 let rules : Expr[][] -> Expr[][] -> BoolExpr = fun fromBoard toBoard ->
@@ -108,8 +108,11 @@ let rules : Expr[][] -> Expr[][] -> BoolExpr = fun fromBoard toBoard ->
                                     (Eq toBoard.[i].[j] (Int 0 1u))) :?> _
                         yield And [|b; ite|] |] |]
     
-
-let formula = And [|validValues; validFinalPattern; rules initBoard finalBoard|]
+let c = IntVar "c" 8u
+let formula = And [|validValues; validFinalPattern; 
+                    rules initBoard finalBoard; 
+                    count (initBoard |> Array.collect id |> Array.toList) 8u c;
+                    Eq c (Int 28 8u)|]
 
 let solver = ctx.MkSolver()
 solver.Assert(formula)
@@ -117,6 +120,7 @@ let flag = solver.Check() = Status.SATISFIABLE
 
 let model = solver.Model
 
+string <| model.Evaluate(c)
 
 for i in {0..height - 1} do
     for j in {0..width - 1} do
@@ -129,21 +133,12 @@ for i in {0..height - 1} do
             match c with
             | 0 | 1 -> printf " "
             | 4 | 5 | 6 | 7 | 8 -> printf " "
-            | 2 | 3 -> printf "1"
+            | 2 | 3 -> printf "*"
             | _ -> failwith "oups"
         | "0" -> 
             match c with
-            | 3 -> printf "1"
+            | 3 -> printf "*"
             | _ -> printf " "
         | _ -> failwith "oups"
 
     printfn ""
-
-
-
-
-
-
-
-
-
