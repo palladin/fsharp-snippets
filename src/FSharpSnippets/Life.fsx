@@ -29,13 +29,9 @@ let Add : BitVecExpr -> BitVecExpr -> BitVecExpr = fun l r -> ctx.MkBVAdd(l, r)
 let width = 15
 let height = 7
 
-let initBoard : Expr[][] = 
+let createBoard : int -> Expr[][] = fun index ->
     [| for i in {0..height - 1} ->
-            [| for j in {0..width - 1} -> IntVar (sprintf "X_%d_%d" i j) 1u :> _ |] |]
-
-let finalBoard : Expr[][] = 
-    [| for i in {0..height - 1} ->
-            [| for j in {0..width - 1} -> IntVar (sprintf "Υ_%d_%d" i j) 1u :> _ |] |]
+            [| for j in {0..width - 1} -> IntVar (sprintf "Board_%d_%d_%d" index i j) 1u :> _ |] |]
 
 let pattern : int[][] = 
     [|[|0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0|];
@@ -46,10 +42,10 @@ let pattern : int[][] =
       [|0; 1; 1; 1; 0; 1; 0; 1; 0; 0; 0; 1; 1; 1; 0|]
       [|0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0|]|]
 
-let validValues = initBoard |> Array.collect id |> Array.map (fun x -> Or [|Eq x (Int 0 1u); Eq x (Int 1 1u)|] ) |> And
-let validFinalPattern = 
+let validValues : Expr[][] -> BoolExpr = fun board -> board |> Array.collect id |> Array.map (fun x -> Or [|Eq x (Int 0 1u); Eq x (Int 1 1u)|] ) |> And
+let validPattern : Expr[][] -> int[][] -> BoolExpr = fun board pattern ->  
     And [| for i in {0..height - 1} ->
-            And [| for j in {0..width - 1} -> Eq finalBoard.[i].[j] (Int pattern.[i].[j] 1u) |] |]
+            And [| for j in {0..width - 1} -> Eq board.[i].[j] (Int pattern.[i].[j] 1u) |] |]
 
 let getNeighborhoods : Expr[][] -> int -> int -> Expr list = fun board i j ->
     match i, j with
@@ -91,7 +87,7 @@ let countNeighborhoods : Expr[][] -> int -> int -> BitVecExpr -> BoolExpr = fun 
 let rules : Expr[][] -> Expr[][] -> BoolExpr = fun fromBoard toBoard ->
     And [| for i in {0..height - 1} ->
             And [| for j in {0..width - 1} do
-                        let c = IntVar (sprintf "C_%d_%d" i j) 4u 
+                        let c = FreshVar 4u 
                         let b = countNeighborhoods fromBoard i j c
                         let ite = 
                             Ite (Eq fromBoard.[i].[j] (Int 1 1u))
@@ -107,12 +103,45 @@ let rules : Expr[][] -> Expr[][] -> BoolExpr = fun fromBoard toBoard ->
                                     (Eq toBoard.[i].[j] (Int 1 1u))
                                     (Eq toBoard.[i].[j] (Int 0 1u))) :?> _
                         yield And [|b; ite|] |] |]
+
+let rec steps : Expr[][] list -> BoolExpr = 
+    fun boards ->
+        match boards with
+        | [_] -> True
+        | board :: board' :: boards ->
+            And [|rules board board'; steps  (board' :: boards)|]
+        | _ -> failwith "oups"
+
+let evalPrintBoard : Expr[][] -> Model -> unit = fun board model ->
+    for i in {0..height - 1} do
+        for j in {0..width - 1} do
+            let value = string <| model.Evaluate(board.[i].[j])
+            let c = getNeighborhoods board i j 
+                    |> List.filter (fun x -> string <| model.Evaluate(x) = "1") 
+                    |> List.length
+            match value with
+            | "1" -> 
+                match c with
+                | 0 | 1 -> printf " "
+                | 4 | 5 | 6 | 7 | 8 -> printf " "
+                | 2 | 3 -> printf "*"
+                | _ -> failwith "oups"
+            | "0" -> 
+                match c with
+                | 3 -> printf "*"
+                | _ -> printf " "
+            | _ -> failwith "oups"
+
+        printfn ""
     
+let initBoard = createBoard 0
+let middleBoard = createBoard 1
+let finalBoard = createBoard 2
 let c = IntVar "c" 8u
-let formula = And [|validValues; validFinalPattern; 
-                    rules initBoard finalBoard; 
-                    count (initBoard |> Array.collect id |> Array.toList) 8u c;
-                    Eq c (Int 28 8u)|]
+let formula = And [|validValues initBoard; validValues middleBoard; validPattern finalBoard pattern; 
+                    steps [initBoard; middleBoard; finalBoard]|] 
+                    //count (initBoard |> Array.collect id |> Array.toList) 8u c;
+                    //Eq c (Int 30 8u)|]
 
 let solver = ctx.MkSolver()
 solver.Assert(formula)
@@ -122,23 +151,5 @@ let model = solver.Model
 
 string <| model.Evaluate(c)
 
-for i in {0..height - 1} do
-    for j in {0..width - 1} do
-        let value = string <| model.Evaluate(initBoard.[i].[j])
-        let c = getNeighborhoods initBoard i j 
-                |> List.filter (fun x -> string <| model.Evaluate(x) = "1") 
-                |> List.length
-        match value with
-        | "1" -> 
-            match c with
-            | 0 | 1 -> printf " "
-            | 4 | 5 | 6 | 7 | 8 -> printf " "
-            | 2 | 3 -> printf "*"
-            | _ -> failwith "oups"
-        | "0" -> 
-            match c with
-            | 3 -> printf "*"
-            | _ -> printf " "
-        | _ -> failwith "oups"
-
-    printfn ""
+evalPrintBoard initBoard model
+evalPrintBoard middleBoard model
