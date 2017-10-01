@@ -134,13 +134,14 @@ let evalPrintBoard : Expr[][] -> Model -> unit = fun board model ->
 
         printfn ""
     
-let initBoard = createBoard 0
-let middleBoard = createBoard 1
-let finalBoard = createBoard 2
+let n = 3
+let boards = [ for i in {0..n - 1} -> createBoard i ]
+let initBoard = boards |> List.head
+let finalBoard = boards |> List.last
 let c = IntVar "c" 8u
-let formula = And [|validValues initBoard; validValues middleBoard; validPattern finalBoard pattern; 
-                    steps [initBoard; middleBoard; finalBoard]|] 
-                    //count (initBoard |> Array.collect id |> Array.toList) 8u c;
+let formula = And [|validPattern finalBoard pattern; 
+                    steps boards;
+                    count (initBoard |> Array.collect id |> Array.toList) 8u c|]
                     //Eq c (Int 30 8u)|]
 
 let solver = ctx.MkSolver()
@@ -151,5 +152,7 @@ let model = solver.Model
 
 string <| model.Evaluate(c)
 
-evalPrintBoard initBoard model
-evalPrintBoard middleBoard model
+
+for i in {0..n - 2} do
+    evalPrintBoard boards.[i] model
+
