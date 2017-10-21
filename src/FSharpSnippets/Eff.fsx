@@ -18,32 +18,32 @@ open Eq
 type Effect = interface end
 
 [<AbstractClass>]
-type Eff<'F, 'A when 'F :> Effect>() = 
-    abstract Invoke<'R> : EffHandler<'F, 'A, 'R> -> 'R 
+type Eff<'U, 'A when 'U :> Effect>() = 
+    abstract Invoke<'R> : EffHandler<'U, 'A, 'R> -> 'R 
 
-and EffHandler<'F, 'A, 'R when 'F :> Effect> =
+and EffHandler<'U, 'A, 'R when 'U :> Effect> =
     abstract Handle : 'A -> 'R 
-    abstract Handle<'X> : Effect * ('X -> Eff<'F, 'A>) -> 'R
+    abstract Handle<'X> : Effect * ('X -> Eff<'U, 'A>) -> 'R
  
-and Pure<'F, 'A when 'F :> Effect>(a : 'A) = 
-    inherit Eff<'F, 'A>()
+and Pure<'U, 'A when 'U :> Effect>(a : 'A) = 
+    inherit Eff<'U, 'A>()
         override self.Invoke handler = 
             handler.Handle a
  
- and Impure<'F, 'X, 'A when 'F :> Effect>(effect : Effect, f : 'X -> Eff<'F, 'A>) = 
-    inherit Eff<'F, 'A>()
+ and Impure<'U, 'X, 'A when 'U :> Effect>(effect : Effect, f : 'X -> Eff<'U, 'A>) = 
+    inherit Eff<'U, 'A>()
         override self.Invoke handler = 
             handler.Handle<'X>(effect, f)
  
 // Monad instance
 type EffBuilder() = 
-    member self.Return<'F, 'A when 'F :> Effect> (x : 'A) : Eff<'F, 'A> = new Pure<'F, 'A>(x) :> _
-    member self.Bind<'F, 'A, 'B when 'F :> Effect>(eff : Eff<'F, 'A>, f : 'A -> Eff<'F, 'B>) : Eff<'F, 'B> = 
-        eff.Invoke<Eff<'F, 'B>> {
-            new EffHandler<'F, 'A, Eff<'F, 'B>> with
+    member self.Return<'U, 'A when 'U :> Effect> (x : 'A) : Eff<'U, 'A> = new Pure<'U, 'A>(x) :> _
+    member self.Bind<'U, 'A, 'B when 'U :> Effect>(eff : Eff<'U, 'A>, f : 'A -> Eff<'U, 'B>) : Eff<'U, 'B> = 
+        eff.Invoke<Eff<'U, 'B>> {
+            new EffHandler<'U, 'A, Eff<'U, 'B>> with
                 member self'.Handle x = f x
                 member self'.Handle<'X>(effect, f') = 
-                    new Impure<'F, 'X, 'B>(effect, fun x -> self.Bind(f' x, f)) :> _
+                    new Impure<'U, 'X, 'B>(effect, fun x -> self.Bind(f' x, f)) :> _
         }
 
 let eff = new EffBuilder()
@@ -66,31 +66,38 @@ type Put<'S>(state : 'S) =
         member self.Invoke<'R> (handler : StateHandler<'S, unit, 'R>) = 
             handler.Handle(state, refl<unit>())
 
-let get<'F, 'S when 'F :> State<'S>>() : Eff<'F, 'S> = 
-    new Impure<'F, 'S, 'S>(new Get<'S>(), fun x -> new Pure<'F, 'S>(x) :> _) :> _
-let put<'F, 'S when 'F :> State<'S>> : 'S -> Eff<'F, unit> = 
-    fun s -> new Impure<'F, unit, unit>(new Put<'S>(s), fun _ -> new Pure<'F, unit>(()) :> _) :> _ 
+let get<'U, 'S when 'U :> State<'S>>() : Eff<'U, 'S> = 
+    new Impure<'U, 'S, 'S>(new Get<'S>(), fun x -> new Pure<'U, 'S>(x) :> _) :> _
+let put<'U, 'S when 'U :> State<'S>> : 'S -> Eff<'U, unit> = 
+    fun s -> new Impure<'U, unit, unit>(new Put<'S>(s), fun _ -> new Pure<'U, unit>(()) :> _) :> _ 
 
 // Reader Effect
 type Reader<'E> = inherit Effect
-type Reader<'E, 'A> = inherit Reader<'E>
-type Ask<'E> = inherit Reader<'E, 'E> 
+type Reader<'E, 'A> = 
+    abstract Invoke<'R> : ReaderHandler<'E, 'A, 'R> -> 'R 
+    inherit Reader<'E>
+and ReaderHandler<'E, 'A, 'R> =
+    abstract Handle : Eq<'E, 'A> -> 'R
+type Ask<'E>() = 
+    interface Reader<'E, 'E> with
+            member self.Invoke<'R> (handler : ReaderHandler<'E, 'E, 'R>) = 
+                handler.Handle(refl<'E>())
 
-let ask<'F, 'E when 'F :> Reader<'E>>() : Eff<'F, 'E> = 
-    new Impure<'F, 'E, 'E>({ new Ask<'E> }, fun x -> new Pure<'F, 'E>(x) :> _) :> _
+let ask<'U, 'E when 'U :> Reader<'E>>() : Eff<'U, 'E> = 
+    new Impure<'U, 'E, 'E>(new Ask<'E>(), fun x -> new Pure<'U, 'E>(x) :> _) :> _
 
 // interpreters
-let rec runState<'F, 'S, 'A when 'F :> State<'S>> 
-    : 'S -> Eff<'F, 'A> -> 'S * 'A = 
+let rec runState<'U, 'S, 'A when 'U :> State<'S>> 
+    : 'S -> Eff<'U, 'A> -> Eff<'U, 'S * 'A> = 
     fun state eff ->
-        eff.Invoke<'S * 'A> {
-            new EffHandler<'F, 'A, 'S * 'A> with
-                member self.Handle x = (state, x)
-                member self.Handle<'X>(effect, f : 'X -> Eff<'F, 'A>) = 
+        eff.Invoke<Eff<'U, 'S * 'A>> {
+            new EffHandler<'U, 'A, Eff<'U, 'S * 'A>> with
+                member self.Handle x = new Pure<'U, 'S * 'A>((state, x)) :> _ 
+                member self.Handle<'X>(effect, f : 'X -> Eff<'U, 'A>) = 
                     match effect with
                     | :? State<'S, 'X> as stateEffect ->
-                        stateEffect.Invoke<'S * 'A> {
-                            new StateHandler<'S, 'X, 'S * 'A> with
+                        stateEffect.Invoke<Eff<'U, 'S * 'A>> {
+                            new StateHandler<'S, 'X, Eff<'U, 'S * 'A>> with
                                 member self.Handle(state' : 'S, eq : Eq<unit, 'X>) = 
                                     let eff' = f (cast eq ())
                                     runState state' eff'
@@ -98,11 +105,38 @@ let rec runState<'F, 'S, 'A when 'F :> State<'S>>
                                     let eff' = f (cast eq state)
                                     runState state eff'
                         }
-                    | _ -> failwith "Invalid effect"
+                    | _ -> new Impure<'U, 'X, 'S * 'A>(effect, fun x -> runState state (f x)) :> _
+        }
+
+let rec runReader<'U, 'E, 'A when 'U :> Reader<'E>> 
+    : 'E -> Eff<'U, 'A> -> Eff<'U, 'A> = 
+    fun env eff ->
+        eff.Invoke<Eff<'U, 'A>> {
+            new EffHandler<'U, 'A, Eff<'U, 'A>> with
+                member self.Handle x = new Pure<'U, 'A>(x) :> _ 
+                member self.Handle<'X>(effect, f : 'X -> Eff<'U, 'A>) = 
+                    match effect with
+                    | :? Reader<'E, 'X> as readerEffect ->
+                        readerEffect.Invoke<Eff<'U, 'A>> {
+                            new ReaderHandler<'E, 'X, Eff<'U, 'A>> with
+                                member self.Handle(eq : Eq<'E, 'X>) = 
+                                    let eff' = f (cast eq env)
+                                    runReader env eff'
+                        }
+                    | _ -> new Impure<'U, 'X, 'A>(effect, fun x -> runReader env (f x)) :> _
+        }
+
+let rec run<'U, 'A when 'U :> Effect> : Eff<'U, 'A> -> 'A = 
+    fun eff ->
+        eff.Invoke<'A> {
+            new EffHandler<'U, 'A, 'A> with
+                member self.Handle x = x
+                member self.Handle<'X>(effect, f : 'X -> Eff<'U, 'A>) = 
+                    failwith "Unhandled effect"
         }
 
 // Example
-// val example : unit -> Eff<'F,int> when 'F :> Reader<int> and 'F :> State<int>
+// val example : unit -> Eff<'U,int> when 'U :> Reader<int> and 'U :> State<int>
 let example () =
     eff {
         do! put 1
@@ -113,6 +147,7 @@ let example () =
 
 type ExEffect = inherit State<int> inherit Reader<int>
 
-runState<ExEffect, _, _> 0 (example ())
+
+(run << runReader 1 << runState<ExEffect, _, _> 0) (example ()) // (1, 2)
 
 
