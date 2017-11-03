@@ -112,7 +112,7 @@ let example () =
         do! put 1
         let! y = ask ()
         let! x = get ()
-        return x + 1
+        return x + y
     }
 
 type ExEffect = inherit State<int> inherit Reader<int>
