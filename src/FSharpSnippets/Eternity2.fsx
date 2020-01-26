@@ -43,14 +43,14 @@ let Distinct : Expr[] -> BoolExpr = fun exprs -> ctx.MkDistinct(exprs)
 type Piece = { Id : int; RotationId : int; Up : char; Down : char; Left : char; Right : char }
 
 let rotations : string -> int -> Piece[] = fun piece index ->
-    let piece = { Id = index; RotationId = 0; Up = piece.[2]; Down = piece.[0]; Left = piece.[1]; Right = piece.[3]  }
+    let piece = { Id = index; RotationId = 0; Up = piece.[0] ; Down = piece.[2]; Left = piece.[3]; Right = piece.[1]  }
     [| piece;
        { Id = index; RotationId = 0; Up = piece.Left; Down = piece.Right; Left = piece.Down; Right = piece.Up  }
        { Id = index; RotationId = 0; Up = piece.Down; Down = piece.Up; Left = piece.Right; Right = piece.Left  }
        { Id = index; RotationId = 0; Up = piece.Right; Down = piece.Left; Left = piece.Up; Right = piece.Down  }|]
 
 
-let strPiece : Piece -> string = fun piece -> new String([|piece.Down; piece.Left; piece.Up; piece.Right|])
+let strPiece : Piece -> string = fun piece -> new String([|piece.Up; piece.Right; piece.Down; piece.Left|])
 
 
 //let dim = 4
