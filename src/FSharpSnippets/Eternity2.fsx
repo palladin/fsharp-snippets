@@ -1,7 +1,9 @@
 ﻿// Eternity 2 Solver via Z3
 // https://en.wikipedia.org/wiki/Eternity_II_puzzle
 
-#r "bin/Microsoft.Z3.dll"
+#time
+
+#r "bin\Microsoft.Z3.dll"
 
 open System
 open System.IO
@@ -10,8 +12,19 @@ open System.Collections.Generic
 open Microsoft.Z3
 
 
+let setTimeout : float -> unit = fun secs -> 
+    let timeout = TimeSpan.FromSeconds(secs).TotalMilliseconds
+    Microsoft.Z3.Global.SetParameter("timeout", string timeout)
 
-let ctx = new Context([|("model", "true")|] |> dict |> Dictionary)
+Microsoft.Z3.Global.ToggleWarningMessages(true)
+//Microsoft.Z3.Global.SetParameter("parallel.enable", "false")
+Microsoft.Z3.Global.SetParameter("model_validate", "true")
+Microsoft.Z3.Global.SetParameter("proof", "true")
+setTimeout(120.0)
+Microsoft.Z3.Global.SetParameter("model", "true")
+printfn "%s" <| Microsoft.Z3.Version.ToString()
+
+let ctx = new Context()
 
 // helpers
 let True : BoolExpr = ctx.MkTrue()
@@ -36,9 +49,43 @@ let rotations : string -> int -> Piece[] = fun piece index ->
        { Id = index; RotationId = 0; Up = piece.Down; Down = piece.Up; Left = piece.Right; Right = piece.Left  }
        { Id = index; RotationId = 0; Up = piece.Right; Down = piece.Left; Left = piece.Up; Right = piece.Down  }|]
 
-let dim = 4
-let puzzle = [|"YXXB"; "YBXX"; "XBBX"; "XYYX"; "UUUP"; "PUPP"; "UUPP"; "UUPP"; 
-               "YXYP"; "BXBP"; "YXBP"; "BXYP"; "YXYU"; "BXBU"; "BXYU"; "YXBU"|]
+
+let strPiece : Piece -> string = fun piece -> new String([|piece.Down; piece.Left; piece.Up; piece.Right|])
+
+
+//let dim = 4
+//let puzzle = [|"YXXB"; "YBXX"; "XBBX"; "XYYX"; "UUUP"; "PUPP"; "UUPP"; "UUPP"; 
+//               "YXYP"; "BXBP"; "YXBP"; "BXYP"; "YXYU"; "BXBU"; "BXYU"; "YXBU"|]
+let dim = 16
+let puzzle = [| "AQXX"; "AEXX"; "IQXX"; "QIXX"; "BAXA"; "JIXA"; "FAXA"; "FMXA"; "KQXA"; "GEXA";
+                "OIXA"; "HEXA"; "HMXA"; "UEXA"; "JAXI"; "RQXI"; "NMXI"; "SMXI"; "GIXI"; "OIXI";
+                "DEXI"; "LAXI"; "LMXI"; "TAXI"; "UAXI"; "BIXQ"; "BQXQ"; "JQXQ"; "RQXQ"; "GMXQ";
+                "OIXQ"; "TQXQ"; "HIXQ"; "HEXQ"; "PMXQ"; "VEXQ"; "RAXE"; "CMXE"; "KMXE"; "SIXE";
+                "SQXE"; "OAXE"; "OIXE"; "OQXE"; "DAXE"; "TEXE"; "HEXE"; "PEXE"; "BMXM"; "JAXM";
+                "JIXM"; "FAXM"; "GEXM"; "DEXM"; "DMXM"; "HQXM"; "PAXM"; "PMXM"; "UIXM"; "VQXM";
+                "FRBB"; "NGBB"; "JCBJ"; "BHBR"; "RVBR"; "NNBR"; "KJBR"; "TFBR"; "VHBR"; "CGBC";
+                "GLBC"; "NRBK"; "ODBK"; "TOBK"; "HCBK"; "NOBS"; "SOBS"; "CPBG"; "TCBG"; "PUBG";
+                "SRBO"; "RRBD"; "KDBD"; "RSBL"; "FNBL"; "HLBL"; "PTBL"; "BUBT"; "FVBT"; "DPBT";
+                "KLBH"; "SOBH"; "SDBH"; "DUBH"; "LNBH"; "UCBU"; "DSBV"; "THBV"; "UFBV"; "VUBV";
+                "LOJJ"; "LPJJ"; "PSJJ"; "VFJJ"; "DOJR"; "CHJF"; "SHJF"; "DOJF"; "PKJF"; "OLJN";
+                "LOJN"; "TSJC"; "TPJC"; "NDJK"; "GLJK"; "LKJK"; "VPJK"; "CUJS"; "PLJG"; "HVJO";
+                "NVJD"; "FPJT"; "NSJT"; "TOJT"; "LVJH"; "UOJH"; "NFJP"; "SUJP"; "DCJP"; "THJP";
+                "FTJU"; "LNJU"; "NPJV"; "KDJV"; "DCJV"; "PTJV"; "TGRR"; "FCRF"; "FKRF"; "FLRF";
+                "SURF"; "OFRF"; "PLRF"; "UURF"; "CDRN"; "RLRC"; "RVRC"; "CNRC"; "OLRC"; "FKRS";
+                "DVRS"; "KKRG"; "KSRG"; "VPRG"; "GGRD"; "GLRD"; "VGRD"; "GPRT"; "HFRT"; "UURH";
+                "FTRP"; "NTRP"; "OKRV"; "DPRV"; "CDFN"; "DHFN"; "CCFK"; "KOFS"; "SUFS"; "DHFG";
+                "TPFG"; "UKFG"; "OOFO"; "LTFO"; "GUFD"; "GSFL"; "NDFT"; "LPFH"; "HOFH"; "GPFP";
+                "KPFU"; "GKFU"; "SHNN"; "VGNC"; "SLNK"; "HHNK"; "UGNS"; "NUNG"; "CSNG"; "PSNG";
+                "CCNO"; "OTNO"; "KGND"; "UKNL"; "UVNL"; "VONL"; "KVNT"; "SHNT"; "TTNT"; "SCNH";
+                "UHNP"; "VGNP"; "LSNU"; "LHNU"; "PCNU"; "VUNU"; "VGCC"; "SVCK"; "HOCK"; "KSCG";
+                "POCG"; "CPCO"; "HHCD"; "CTCL"; "DVCL"; "VUCL"; "SOCT"; "DLCP"; "KDCU"; "KPCV";
+                "UUCV"; "UVCV"; "LVKK"; "TGKK"; "POKK"; "SOKG"; "LLKG"; "SHKD"; "GVKT"; "PHKT";
+                "LTKH"; "LUKH"; "STSS"; "PDSG"; "GDSD"; "GTSD"; "LOSD"; "DPSL"; "OVST"; "UOST";
+                "GUSH"; "DUSH"; "OLGO"; "THGO"; "VTGD"; "PVGU"; "UVOO"; "LDOD"; "DUOL"; "PUOT";
+                "VHDD"; "HLDL"; "PTLH"; "UPTP"; "PVTV"; "UVHV" |]
+
+
+
 let pieces = 
     puzzle
     |> Array.mapi (fun i piece -> rotations piece i)
@@ -153,17 +200,41 @@ let constraints =
 
 let formula = And [|validValues; distinct; constraints|]
 
-let solver = ctx.MkSolver()
+let solver = ctx.MkSolver("QF_BV")
 solver.Assert(formula)
-let flag = solver.Check() = Status.SATISFIABLE
+let r = solver.Check()
 
-let model = solver.Model
+if r = Status.SATISFIABLE then
 
-for i in {0..dim - 1} do
-    for j in {0..dim - 1} do
-        let value = string <| model.Evaluate(IntVar (sprintf "Y_%d_%d" i j) 8u)
-        printf "%s " value
+    let model = solver.Model
+
+    for i in {0..dim - 1} do
+        for j in {0..dim - 1} do
+            let value = string <| model.Evaluate(IntVar (sprintf "Y_%d_%d" i j) 8u)
+            printf "%s " value
+        printfn ""
+
     printfn ""
+
+    for i in {0..dim - 1} do
+        for j in {0..dim - 1} do
+            let value = string <| model.Evaluate(IntVar (sprintf "X_%d_%d" i j) 8u)
+            printf "%s " value
+        printfn ""
+
+    for i in {0..dim - 1} do
+        for j in {0..dim - 1} do
+            let value = Int32.Parse(string <| model.Evaluate(IntVar (sprintf "X_%d_%d" i j) 8u))
+            let piece = pieces |> Array.collect (fun piece -> piece) |> Array.find (fun piece -> piece.RotationId = value)
+            printf "%s " <| strPiece piece
+        printfn ""
+
+else if r = Status.UNSATISFIABLE then
+    printf "Proof: %A" solver.Proof
+    for core in solver.UnsatCore do
+        printf "Unsat core: %A" core
+
+else printfn "unknown"
 
 
 
