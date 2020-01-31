@@ -17,9 +17,9 @@ let setTimeout : float -> unit = fun secs ->
     Microsoft.Z3.Global.SetParameter("timeout", string timeout)
 
 Microsoft.Z3.Global.ToggleWarningMessages(true)
-//Microsoft.Z3.Global.SetParameter("parallel.enable", "false")
+Microsoft.Z3.Global.SetParameter("parallel.enable", "false")
 Microsoft.Z3.Global.SetParameter("model_validate", "true")
-Microsoft.Z3.Global.SetParameter("proof", "true")
+//Microsoft.Z3.Global.SetParameter("proof", "true")
 //setTimeout(120.0)
 Microsoft.Z3.Global.SetParameter("model", "true")
 printfn "%s" <| Microsoft.Z3.Version.ToString()
@@ -38,6 +38,9 @@ let And : BoolExpr[] -> BoolExpr = fun bools -> ctx.MkAnd(bools)
 let Or : BoolExpr[] -> BoolExpr = fun bools -> ctx.MkOr(bools)
 let Not : BoolExpr -> BoolExpr = fun bool -> ctx.MkNot(bool)
 let Distinct : Expr[] -> BoolExpr = fun exprs -> ctx.MkDistinct(exprs)
+let LessThanOrEqual : BitVecExpr -> BitVecExpr -> BoolExpr = fun l r -> ctx.MkBVULE(l, r)
+let GreaterThanOrEqual : BitVecExpr -> BitVecExpr -> BoolExpr = fun l r -> ctx.MkBVUGE(l, r)
+let Div : BitVecExpr -> BitVecExpr -> BitVecExpr = fun l r -> ctx.MkBVUDiv(l, r) 
 
 
 let bitSize = 10u
@@ -179,29 +182,28 @@ let pieces =
     |> Array.mapi (fun i piece -> { piece with RotationId = i })
     |> Array.splitInto dim 
 
-
-let varPieces : Expr[][] =
+let varPieces : BitVecExpr[][] =
     [| for i in {0..dim - 1} ->
-        [| for j in {0..dim - 1} -> IntVar (sprintf "RotPiece_%d_%d" i j) bitSize :> _ |] |]
-let tempVars = 
+        [| for j in {0..dim - 1} -> IntVar (sprintf "RotPiece_%d_%d" i j) bitSize |] |]
+let tempVars : BitVecExpr[][] = 
         [| for i in {0..dim - 1} ->
             [| for j in {0..dim - 1} -> IntVar (sprintf "Piece_%d_%d" i j) bitSize |] |]
 
 let validValues : BoolExpr =
     let pieces = pieces |> Array.collect id
-    And [| for i in {0..dim - 1} do
-            for j in {0..dim - 1} do 
-                yield Or [| for piece in pieces do yield Eq (varPieces.[i].[j]) (Int piece.RotationId bitSize) |] |]
+    let validRotPieces = 
+        And [| for i in {0..dim - 1} do
+                    for j in {0..dim - 1} do 
+                        yield And [| GreaterThanOrEqual varPieces.[i].[j] (Int 0 bitSize);
+                                     LessThanOrEqual varPieces.[i].[j] (Int (dim * dim * 4 - 1) bitSize) |] |]
+                        
+    let validPieces =            
+           And [| for i in {0..dim - 1} do
+                    for j in {0..dim - 1} do 
+                        yield Eq tempVars.[i].[j] (Div varPieces.[i].[j] (Int 4 bitSize)) |]
 
-let distinct : seq<BoolExpr> = 
-    let pieces = pieces |> Array.collect id
-    seq { for i in {0..dim - 1} do
-            for j in {0..dim - 1} do 
-                for piece in pieces do 
-                    yield Ite (Eq varPieces.[i].[j] (Int piece.RotationId bitSize)) (Eq tempVars.[i].[j] (Int piece.Id bitSize)) True :?> _ }
-    |> Seq.cache
-        
-    
+    And [|validRotPieces; validPieces|] 
+
 
 let constraints : seq<BoolExpr> = 
     let n = dim - 1
@@ -290,15 +292,12 @@ let constraints : seq<BoolExpr> =
 
 
 let distinctPieces = tempVars |> Array.collect id |> Array.map (fun v -> v :> Expr) |> Distinct
-let distinctRotPieces= varPieces |> Array.collect id |> Array.map (fun v -> v) |> Distinct
 
 let solver = ctx.MkSolver("QF_BV")
 
 solver.Add(validValues)
 solver.Add(distinctPieces)
-solver.Add(distinctRotPieces)
 solver.Add(And (constraints |> Array.ofSeq))
-solver.Add(And (distinct |> Array.ofSeq))
 
 let r = solver.Check()
 
@@ -335,3 +334,5 @@ else if r = Status.UNSATISFIABLE then
         printf "Unsat core: %A" core
 
 else printfn "unknown"
+
+
