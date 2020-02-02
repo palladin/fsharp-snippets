@@ -55,39 +55,39 @@ let rotations : string -> int -> Piece[] = fun piece index ->
 
 let strPiece : Piece -> string = fun piece -> sprintf "%c%c%c%c" piece.Up piece.Right piece.Down piece.Left
 
-let dim = 4
-let puzzle = [|"YXXB"; "YBXX"; "XBBX"; "XYYX"; "UUUP"; "PUPP"; "UUPP"; "UUPP"; 
-               "YXYP"; "BXBP"; "YXBP"; "BXYP"; "YXYU"; "BXBU"; "BXYU"; "YXBU"|]
-//let dim = 16
+//let dim = 4
+//let puzzle = [|"YXXB"; "YBXX"; "XBBX"; "XYYX"; "UUUP"; "PUPP"; "UUPP"; "UUPP"; 
+//               "YXYP"; "BXBP"; "YXBP"; "BXYP"; "YXYU"; "BXBU"; "BXYU"; "YXBU"|]
+let dim = 16
 
 // https://github.com/AntonFagerberg/Eternity-II-Solver/blob/master/src/main/scala/com/example/Game.scala
 // directions: up, right, down, left
-//let puzzle = [| "AQXX"; "AEXX"; "IQXX"; "QIXX"; "BAXA"; "JIXA"; "FAXA"; "FMXA"; "KQXA"; "GEXA";
-//                "OIXA"; "HEXA"; "HMXA"; "UEXA"; "JAXI"; "RQXI"; "NMXI"; "SMXI"; "GIXI"; "OIXI";
-//                "DEXI"; "LAXI"; "LMXI"; "TAXI"; "UAXI"; "BIXQ"; "BQXQ"; "JQXQ"; "RQXQ"; "GMXQ";
-//                "OIXQ"; "TQXQ"; "HIXQ"; "HEXQ"; "PMXQ"; "VEXQ"; "RAXE"; "CMXE"; "KMXE"; "SIXE";
-//                "SQXE"; "OAXE"; "OIXE"; "OQXE"; "DAXE"; "TEXE"; "HEXE"; "PEXE"; "BMXM"; "JAXM";
-//                "JIXM"; "FAXM"; "GEXM"; "DEXM"; "DMXM"; "HQXM"; "PAXM"; "PMXM"; "UIXM"; "VQXM";
-//                "FRBB"; "NGBB"; "JCBJ"; "BHBR"; "RVBR"; "NNBR"; "KJBR"; "TFBR"; "VHBR"; "CGBC";
-//                "GLBC"; "NRBK"; "ODBK"; "TOBK"; "HCBK"; "NOBS"; "SOBS"; "CPBG"; "TCBG"; "PUBG";
-//                "SRBO"; "RRBD"; "KDBD"; "RSBL"; "FNBL"; "HLBL"; "PTBL"; "BUBT"; "FVBT"; "DPBT";
-//                "KLBH"; "SOBH"; "SDBH"; "DUBH"; "LNBH"; "UCBU"; "DSBV"; "THBV"; "UFBV"; "VUBV";
-//                "LOJJ"; "LPJJ"; "PSJJ"; "VFJJ"; "DOJR"; "CHJF"; "SHJF"; "DOJF"; "PKJF"; "OLJN";
-//                "LOJN"; "TSJC"; "TPJC"; "NDJK"; "GLJK"; "LKJK"; "VPJK"; "CUJS"; "PLJG"; "HVJO";
-//                "NVJD"; "FPJT"; "NSJT"; "TOJT"; "LVJH"; "UOJH"; "NFJP"; "SUJP"; "DCJP"; "THJP";
-//                "FTJU"; "LNJU"; "NPJV"; "KDJV"; "DCJV"; "PTJV"; "TGRR"; "FCRF"; "FKRF"; "FLRF";
-//                "SURF"; "OFRF"; "PLRF"; "UURF"; "CDRN"; "RLRC"; "RVRC"; "CNRC"; "OLRC"; "FKRS";
-//                "DVRS"; "KKRG"; "KSRG"; "VPRG"; "GGRD"; "GLRD"; "VGRD"; "GPRT"; "HFRT"; "UURH";
-//                "FTRP"; "NTRP"; "OKRV"; "DPRV"; "CDFN"; "DHFN"; "CCFK"; "KOFS"; "SUFS"; "DHFG";
-//                "TPFG"; "UKFG"; "OOFO"; "LTFO"; "GUFD"; "GSFL"; "NDFT"; "LPFH"; "HOFH"; "GPFP";
-//                "KPFU"; "GKFU"; "SHNN"; "VGNC"; "SLNK"; "HHNK"; "UGNS"; "NUNG"; "CSNG"; "PSNG";
-//                "CCNO"; "OTNO"; "KGND"; "UKNL"; "UVNL"; "VONL"; "KVNT"; "SHNT"; "TTNT"; "SCNH";
-//                "UHNP"; "VGNP"; "LSNU"; "LHNU"; "PCNU"; "VUNU"; "VGCC"; "SVCK"; "HOCK"; "KSCG";
-//                "POCG"; "CPCO"; "HHCD"; "CTCL"; "DVCL"; "VUCL"; "SOCT"; "DLCP"; "KDCU"; "KPCV";
-//                "UUCV"; "UVCV"; "LVKK"; "TGKK"; "POKK"; "SOKG"; "LLKG"; "SHKD"; "GVKT"; "PHKT";
-//                "LTKH"; "LUKH"; "STSS"; "PDSG"; "GDSD"; "GTSD"; "LOSD"; "DPSL"; "OVST"; "UOST";
-//                "GUSH"; "DUSH"; "OLGO"; "THGO"; "VTGD"; "PVGU"; "UVOO"; "LDOD"; "DUOL"; "PUOT";
-//                "VHDD"; "HLDL"; "PTLH"; "UPTP"; "PVTV"; "UVHV" |]
+let puzzle = [| "AQXX"; "AEXX"; "IQXX"; "QIXX"; "BAXA"; "JIXA"; "FAXA"; "FMXA"; "KQXA"; "GEXA";
+                "OIXA"; "HEXA"; "HMXA"; "UEXA"; "JAXI"; "RQXI"; "NMXI"; "SMXI"; "GIXI"; "OIXI";
+                "DEXI"; "LAXI"; "LMXI"; "TAXI"; "UAXI"; "BIXQ"; "BQXQ"; "JQXQ"; "RQXQ"; "GMXQ";
+                "OIXQ"; "TQXQ"; "HIXQ"; "HEXQ"; "PMXQ"; "VEXQ"; "RAXE"; "CMXE"; "KMXE"; "SIXE";
+                "SQXE"; "OAXE"; "OIXE"; "OQXE"; "DAXE"; "TEXE"; "HEXE"; "PEXE"; "BMXM"; "JAXM";
+                "JIXM"; "FAXM"; "GEXM"; "DEXM"; "DMXM"; "HQXM"; "PAXM"; "PMXM"; "UIXM"; "VQXM";
+                "FRBB"; "NGBB"; "JCBJ"; "BHBR"; "RVBR"; "NNBR"; "KJBR"; "TFBR"; "VHBR"; "CGBC";
+                "GLBC"; "NRBK"; "ODBK"; "TOBK"; "HCBK"; "NOBS"; "SOBS"; "CPBG"; "TCBG"; "PUBG";
+                "SRBO"; "RRBD"; "KDBD"; "RSBL"; "FNBL"; "HLBL"; "PTBL"; "BUBT"; "FVBT"; "DPBT";
+                "KLBH"; "SOBH"; "SDBH"; "DUBH"; "LNBH"; "UCBU"; "DSBV"; "THBV"; "UFBV"; "VUBV";
+                "LOJJ"; "LPJJ"; "PSJJ"; "VFJJ"; "DOJR"; "CHJF"; "SHJF"; "DOJF"; "PKJF"; "OLJN";
+                "LOJN"; "TSJC"; "TPJC"; "NDJK"; "GLJK"; "LKJK"; "VPJK"; "CUJS"; "PLJG"; "HVJO";
+                "NVJD"; "FPJT"; "NSJT"; "TOJT"; "LVJH"; "UOJH"; "NFJP"; "SUJP"; "DCJP"; "THJP";
+                "FTJU"; "LNJU"; "NPJV"; "KDJV"; "DCJV"; "PTJV"; "TGRR"; "FCRF"; "FKRF"; "FLRF";
+                "SURF"; "OFRF"; "PLRF"; "UURF"; "CDRN"; "RLRC"; "RVRC"; "CNRC"; "OLRC"; "FKRS";
+                "DVRS"; "KKRG"; "KSRG"; "VPRG"; "GGRD"; "GLRD"; "VGRD"; "GPRT"; "HFRT"; "UURH";
+                "FTRP"; "NTRP"; "OKRV"; "DPRV"; "CDFN"; "DHFN"; "CCFK"; "KOFS"; "SUFS"; "DHFG";
+                "TPFG"; "UKFG"; "OOFO"; "LTFO"; "GUFD"; "GSFL"; "NDFT"; "LPFH"; "HOFH"; "GPFP";
+                "KPFU"; "GKFU"; "SHNN"; "VGNC"; "SLNK"; "HHNK"; "UGNS"; "NUNG"; "CSNG"; "PSNG";
+                "CCNO"; "OTNO"; "KGND"; "UKNL"; "UVNL"; "VONL"; "KVNT"; "SHNT"; "TTNT"; "SCNH";
+                "UHNP"; "VGNP"; "LSNU"; "LHNU"; "PCNU"; "VUNU"; "VGCC"; "SVCK"; "HOCK"; "KSCG";
+                "POCG"; "CPCO"; "HHCD"; "CTCL"; "DVCL"; "VUCL"; "SOCT"; "DLCP"; "KDCU"; "KPCV";
+                "UUCV"; "UVCV"; "LVKK"; "TGKK"; "POKK"; "SOKG"; "LLKG"; "SHKD"; "GVKT"; "PHKT";
+                "LTKH"; "LUKH"; "STSS"; "PDSG"; "GDSD"; "GTSD"; "LOSD"; "DPSL"; "OVST"; "UOST";
+                "GUSH"; "DUSH"; "OLGO"; "THGO"; "VTGD"; "PVGU"; "UVOO"; "LDOD"; "DUOL"; "PUOT";
+                "VHDD"; "HLDL"; "PTLH"; "UPTP"; "PVTV"; "UVHV" |]
 
 // https://github.com/vaga/Goternity/blob/master/assets/pieces.txt
 // directions: north, south, west, east 
@@ -296,10 +296,16 @@ let distinctPieces = tempVars |> Array.collect id |> Array.map (fun v -> v :> Ex
 let solver = ctx.MkSolver("QF_BV")
 
 solver.Add(validValues)
-solver.Add(distinctPieces)
-solver.Add(And (constraints |> Array.ofSeq))
+//solver.Add(distinctPieces)
+//solver.Add(And (constraints |> Array.ofSeq))
 
 let r = solver.Check()
+
+for i = 1 to dim * dim do
+    solver.Add(constraints |> Seq.take i |> Seq.last)
+    let watch = System.Diagnostics.Stopwatch.StartNew()
+    let r = solver.Check()
+    printfn "%d - %A - %A - %A" i r watch.Elapsed DateTime.Now 
 
 if r = Status.SATISFIABLE then
 
@@ -328,11 +334,5 @@ if r = Status.SATISFIABLE then
             printf "%s " <| strPiece piece
         printfn ""
 
-else if r = Status.UNSATISFIABLE then
-    printf "Proof: %A" solver.Proof
-    for core in solver.UnsatCore do
-        printf "Unsat core: %A" core
-
-else printfn "unknown"
 
 
