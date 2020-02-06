@@ -43,51 +43,61 @@ let GreaterThanOrEqual : BitVecExpr -> BitVecExpr -> BoolExpr = fun l r -> ctx.M
 let Div : BitVecExpr -> BitVecExpr -> BitVecExpr = fun l r -> ctx.MkBVUDiv(l, r) 
 
 
-let bitSize = 10u
+let bitSize = 8u
+let colorBitSize = 5u
 
-type Piece = { Id : int; RotationId : int; Up : char; Down : char; Left : char; Right : char }
+type Piece = { Id : int; RotationId : string; 
+               Up : char; Right : char; Down : char; Left : char; }
+type PieceColors = { UpVar : BitVecExpr; RightVar : BitVecExpr; DownVar : BitVecExpr; LeftVar : BitVecExpr; }
 
 let rotations : string -> int -> Piece[] = fun piece index ->
     [| for i = 0 to piece.Length - 1 do
         let piece =  piece.Substring(i) + piece.Substring(0, i)
-        yield { Id = index; RotationId = 0; Up = piece.[0] ; Right = piece.[1]; Down = piece.[2]; Left = piece.[3];  }|]
+        yield { Id = index; RotationId = piece; 
+                Up = piece.[0];
+                Right = piece.[1];
+                Down = piece.[2];
+                Left = piece.[3]; } |]
 
 
-let strPiece : Piece -> string = fun piece -> sprintf "%c%c%c%c" piece.Up piece.Right piece.Down piece.Left
 
-//let dim = 4
-//let puzzle = [|"YXXB"; "YBXX"; "XBBX"; "XYYX"; "UUUP"; "PUPP"; "UUPP"; "UUPP"; 
-//               "YXYP"; "BXBP"; "YXBP"; "BXYP"; "YXYU"; "BXBU"; "BXYU"; "YXBU"|]
-let dim = 16
+let colorInt : char -> int = fun c -> (int c) - (int 'A') 
+let intColor : int -> char = fun i -> char ((int 'A') + i)
+
+
+let dim = 4
+let puzzle = [|"YXXB"; "YBXX"; "XBBX"; "XYYX"; "UUUP"; "PUPP"; "UUPP"; "UUPP"; 
+               "YXYP"; "BXBP"; "YXBP"; "BXYP"; "YXYU"; "BXBU"; "BXYU"; "YXBU"|]
+//let dim = 16
 
 // https://github.com/AntonFagerberg/Eternity-II-Solver/blob/master/src/main/scala/com/example/Game.scala
 // directions: up, right, down, left
-let puzzle = [| "AQXX"; "AEXX"; "IQXX"; "QIXX"; "BAXA"; "JIXA"; "FAXA"; "FMXA"; "KQXA"; "GEXA";
-                "OIXA"; "HEXA"; "HMXA"; "UEXA"; "JAXI"; "RQXI"; "NMXI"; "SMXI"; "GIXI"; "OIXI";
-                "DEXI"; "LAXI"; "LMXI"; "TAXI"; "UAXI"; "BIXQ"; "BQXQ"; "JQXQ"; "RQXQ"; "GMXQ";
-                "OIXQ"; "TQXQ"; "HIXQ"; "HEXQ"; "PMXQ"; "VEXQ"; "RAXE"; "CMXE"; "KMXE"; "SIXE";
-                "SQXE"; "OAXE"; "OIXE"; "OQXE"; "DAXE"; "TEXE"; "HEXE"; "PEXE"; "BMXM"; "JAXM";
-                "JIXM"; "FAXM"; "GEXM"; "DEXM"; "DMXM"; "HQXM"; "PAXM"; "PMXM"; "UIXM"; "VQXM";
-                "FRBB"; "NGBB"; "JCBJ"; "BHBR"; "RVBR"; "NNBR"; "KJBR"; "TFBR"; "VHBR"; "CGBC";
-                "GLBC"; "NRBK"; "ODBK"; "TOBK"; "HCBK"; "NOBS"; "SOBS"; "CPBG"; "TCBG"; "PUBG";
-                "SRBO"; "RRBD"; "KDBD"; "RSBL"; "FNBL"; "HLBL"; "PTBL"; "BUBT"; "FVBT"; "DPBT";
-                "KLBH"; "SOBH"; "SDBH"; "DUBH"; "LNBH"; "UCBU"; "DSBV"; "THBV"; "UFBV"; "VUBV";
-                "LOJJ"; "LPJJ"; "PSJJ"; "VFJJ"; "DOJR"; "CHJF"; "SHJF"; "DOJF"; "PKJF"; "OLJN";
-                "LOJN"; "TSJC"; "TPJC"; "NDJK"; "GLJK"; "LKJK"; "VPJK"; "CUJS"; "PLJG"; "HVJO";
-                "NVJD"; "FPJT"; "NSJT"; "TOJT"; "LVJH"; "UOJH"; "NFJP"; "SUJP"; "DCJP"; "THJP";
-                "FTJU"; "LNJU"; "NPJV"; "KDJV"; "DCJV"; "PTJV"; "TGRR"; "FCRF"; "FKRF"; "FLRF";
-                "SURF"; "OFRF"; "PLRF"; "UURF"; "CDRN"; "RLRC"; "RVRC"; "CNRC"; "OLRC"; "FKRS";
-                "DVRS"; "KKRG"; "KSRG"; "VPRG"; "GGRD"; "GLRD"; "VGRD"; "GPRT"; "HFRT"; "UURH";
-                "FTRP"; "NTRP"; "OKRV"; "DPRV"; "CDFN"; "DHFN"; "CCFK"; "KOFS"; "SUFS"; "DHFG";
-                "TPFG"; "UKFG"; "OOFO"; "LTFO"; "GUFD"; "GSFL"; "NDFT"; "LPFH"; "HOFH"; "GPFP";
-                "KPFU"; "GKFU"; "SHNN"; "VGNC"; "SLNK"; "HHNK"; "UGNS"; "NUNG"; "CSNG"; "PSNG";
-                "CCNO"; "OTNO"; "KGND"; "UKNL"; "UVNL"; "VONL"; "KVNT"; "SHNT"; "TTNT"; "SCNH";
-                "UHNP"; "VGNP"; "LSNU"; "LHNU"; "PCNU"; "VUNU"; "VGCC"; "SVCK"; "HOCK"; "KSCG";
-                "POCG"; "CPCO"; "HHCD"; "CTCL"; "DVCL"; "VUCL"; "SOCT"; "DLCP"; "KDCU"; "KPCV";
-                "UUCV"; "UVCV"; "LVKK"; "TGKK"; "POKK"; "SOKG"; "LLKG"; "SHKD"; "GVKT"; "PHKT";
-                "LTKH"; "LUKH"; "STSS"; "PDSG"; "GDSD"; "GTSD"; "LOSD"; "DPSL"; "OVST"; "UOST";
-                "GUSH"; "DUSH"; "OLGO"; "THGO"; "VTGD"; "PVGU"; "UVOO"; "LDOD"; "DUOL"; "PUOT";
-                "VHDD"; "HLDL"; "PTLH"; "UPTP"; "PVTV"; "UVHV" |]
+//let puzzle = [| "AQXX"; "AEXX"; "IQXX"; "QIXX"; "BAXA"; "JIXA"; "FAXA"; "FMXA"; "KQXA"; "GEXA";
+//                "OIXA"; "HEXA"; "HMXA"; "UEXA"; "JAXI"; "RQXI"; "NMXI"; "SMXI"; "GIXI"; "OIXI";
+//                "DEXI"; "LAXI"; "LMXI"; "TAXI"; "UAXI"; "BIXQ"; "BQXQ"; "JQXQ"; "RQXQ"; "GMXQ";
+//                "OIXQ"; "TQXQ"; "HIXQ"; "HEXQ"; "PMXQ"; "VEXQ"; "RAXE"; "CMXE"; "KMXE"; "SIXE";
+//                "SQXE"; "OAXE"; "OIXE"; "OQXE"; "DAXE"; "TEXE"; "HEXE"; "PEXE"; "BMXM"; "JAXM";
+//                "JIXM"; "FAXM"; "GEXM"; "DEXM"; "DMXM"; "HQXM"; "PAXM"; "PMXM"; "UIXM"; "VQXM";
+//                "FRBB"; "NGBB"; "JCBJ"; "BHBR"; "RVBR"; "NNBR"; "KJBR"; "TFBR"; "VHBR"; "CGBC";
+//                "GLBC"; "NRBK"; "ODBK"; "TOBK"; "HCBK"; "NOBS"; "SOBS"; "CPBG"; "TCBG"; "PUBG";
+//                "SRBO"; "RRBD"; "KDBD"; "RSBL"; "FNBL"; "HLBL"; "PTBL"; "BUBT"; "FVBT"; "DPBT";
+//                "KLBH"; "SOBH"; "SDBH"; "DUBH"; "LNBH"; "UCBU"; "DSBV"; "THBV"; "UFBV"; "VUBV";
+//                "LOJJ"; "LPJJ"; "PSJJ"; "VFJJ"; "DOJR"; "CHJF"; "SHJF"; "DOJF"; "PKJF"; "OLJN";
+//                "LOJN"; "TSJC"; "TPJC"; "NDJK"; "GLJK"; "LKJK"; "VPJK"; "CUJS"; "PLJG"; "HVJO";
+//                "NVJD"; "FPJT"; "NSJT"; "TOJT"; "LVJH"; "UOJH"; "NFJP"; "SUJP"; "DCJP"; "THJP";
+//                "FTJU"; "LNJU"; "NPJV"; "KDJV"; "DCJV"; "PTJV"; "TGRR"; "FCRF"; "FKRF"; "FLRF";
+//                "SURF"; "OFRF"; "PLRF"; "UURF"; "CDRN"; "RLRC"; "RVRC"; "CNRC"; "OLRC"; "FKRS";
+//                "DVRS"; "KKRG"; "KSRG"; "VPRG"; "GGRD"; "GLRD"; "VGRD"; "GPRT"; "HFRT"; "UURH";
+//                "FTRP"; "NTRP"; "OKRV"; "DPRV"; "CDFN"; "DHFN"; "CCFK"; "KOFS"; "SUFS"; "DHFG";
+//                "TPFG"; "UKFG"; "OOFO"; "LTFO"; "GUFD"; "GSFL"; "NDFT"; "LPFH"; "HOFH"; "GPFP";
+//                "KPFU"; "GKFU"; "SHNN"; "VGNC"; "SLNK"; "HHNK"; "UGNS"; "NUNG"; "CSNG"; "PSNG";
+//                "CCNO"; "OTNO"; "KGND"; "UKNL"; "UVNL"; "VONL"; "KVNT"; "SHNT"; "TTNT"; "SCNH";
+//                "UHNP"; "VGNP"; "LSNU"; "LHNU"; "PCNU"; "VUNU"; "VGCC"; "SVCK"; "HOCK"; "KSCG";
+//                "POCG"; "CPCO"; "HHCD"; "CTCL"; "DVCL"; "VUCL"; "SOCT"; "DLCP"; "KDCU"; "KPCV";
+//                "UUCV"; "UVCV"; "LVKK"; "TGKK"; "POKK"; "SOKG"; "LLKG"; "SHKD"; "GVKT"; "PHKT";
+//                "LTKH"; "LUKH"; "STSS"; "PDSG"; "GDSD"; "GTSD"; "LOSD"; "DPSL"; "OVST"; "UOST";
+//                "GUSH"; "DUSH"; "OLGO"; "THGO"; "VTGD"; "PVGU"; "UVOO"; "LDOD"; "DUOL"; "PUOT";
+//                "VHDD"; "HLDL"; "PTLH"; "UPTP"; "PVTV"; "UVHV" |]
 
 // https://github.com/vaga/Goternity/blob/master/assets/pieces.txt
 // directions: north, south, west, east 
@@ -175,137 +185,174 @@ let puzzle = [| "AQXX"; "AEXX"; "IQXX"; "QIXX"; "BAXA"; "JIXA"; "FAXA"; "FMXA"; 
 //       [|3; 0; 6; 0|]; [|11; 0; 6; 3|]; [|4; 0; 3; 7|]; [|1; 0; 7; 0|] 
 //    |] |> Array.map (fun xs -> let map = Array.append [|'X'|] [|'A'..'W'|] in sprintf "%c%c%c%c" map.[xs.[0]] map.[xs.[3]] map.[xs.[1]] map.[xs.[2]])
 
+let board : PieceColors[][] = 
+    let n = dim - 1
+    [|  for i in {0..n} do
+            yield [| for j in {0..n} do 
+                        yield 
+                          { UpVar = IntVar (sprintf "RotPiece_%d_%d_Up" i j) colorBitSize; 
+                            RightVar = IntVar (sprintf "RotPiece_%d_%d_Right" i j) colorBitSize; 
+                            DownVar = IntVar (sprintf "RotPiece_%d_%d_Down" i j) colorBitSize; 
+                            LeftVar = IntVar (sprintf "RotPiece_%d_%d_Left" i j) colorBitSize;  }
+                 |]
+    |]
+
+let equalColors : Piece -> PieceColors -> BoolExpr = fun piece pieceColors ->
+    And [| Eq (Int (colorInt piece.Up) colorBitSize) pieceColors.UpVar;
+           Eq (Int (colorInt piece.Down) colorBitSize) pieceColors.DownVar;
+           Eq (Int (colorInt piece.Left) colorBitSize) pieceColors.LeftVar;
+           Eq (Int (colorInt piece.Right) colorBitSize) pieceColors.RightVar |]
+
 let pieces = 
     puzzle
     |> Array.mapi (fun i piece -> rotations piece i)
     |> Array.collect id
-    |> Array.mapi (fun i piece -> { piece with RotationId = i })
-    |> Array.splitInto dim 
 
 let varPieces : BitVecExpr[][] =
     [| for i in {0..dim - 1} ->
-        [| for j in {0..dim - 1} -> IntVar (sprintf "RotPiece_%d_%d" i j) bitSize |] |]
-let tempVars : BitVecExpr[][] = 
-        [| for i in {0..dim - 1} ->
-            [| for j in {0..dim - 1} -> IntVar (sprintf "Piece_%d_%d" i j) bitSize |] |]
+        [| for j in {0..dim - 1} -> IntVar (sprintf "Piece_%d_%d" i j) bitSize |] |]
 
-let validValues : BoolExpr =
-    let pieces = pieces |> Array.collect id
-    let validRotPieces = 
-        And [| for i in {0..dim - 1} do
-                    for j in {0..dim - 1} do 
-                        yield And [| GreaterThanOrEqual varPieces.[i].[j] (Int 0 bitSize);
-                                     LessThanOrEqual varPieces.[i].[j] (Int (dim * dim * 4 - 1) bitSize) |] |]
+
+let validPieces : BoolExpr = 
+    And [| for i in {0..dim - 1} do
+                for j in {0..dim - 1} do 
+                    yield And [| GreaterThanOrEqual varPieces.[i].[j] (Int 0 bitSize);
+                                 LessThanOrEqual varPieces.[i].[j] (Int (dim * dim - 1) bitSize) |] |]
                         
-    let validPieces =            
-           And [| for i in {0..dim - 1} do
-                    for j in {0..dim - 1} do 
-                        yield Eq tempVars.[i].[j] (Div varPieces.[i].[j] (Int 4 bitSize)) |]
-
-    And [|validRotPieces; validPieces|] 
-
-
-let constraints : seq<BoolExpr> = 
+let colorConstraints : seq<BoolExpr> = 
     let n = dim - 1
-    let pieces = pieces |> Array.collect id
-    let findUp c = pieces |> Array.filter (fun piece -> piece.Up = c) 
-    let findDown c = pieces |> Array.filter (fun piece -> piece.Down = c) 
-    let findLeft c = pieces |> Array.filter (fun piece -> piece.Left = c) 
-    let findRight c = pieces |> Array.filter (fun piece -> piece.Right = c) 
     seq { for i in {0..n} do
-                for j in {0..n} do 
-                    match i, j with
-                    | 0, 0 -> 
-                        let pieces = pieces |> Array.filter (fun piece -> piece.Up = 'X' && piece.Left = 'X')
-                        yield Or [| for piece in pieces do
-                                        yield And [| Eq varPieces.[0].[0] (Int piece.RotationId bitSize);
-                                                     Or (piece.Down |> findUp |> Array.filter (fun piece -> piece.Left = 'X') |> Array.map (fun piece -> Eq varPieces.[1].[0] (Int piece.RotationId bitSize)));
-                                                     Or (piece.Right |> findLeft |> Array.filter (fun piece -> piece.Up = 'X') |> Array.map (fun piece -> Eq varPieces.[0].[1] (Int piece.RotationId bitSize))) 
-                                                  |]
-                                 |]
-                    | 0, j when j = n -> 
-                        let pieces = pieces |> Array.filter (fun piece -> piece.Up = 'X' && piece.Right = 'X')
-                        yield Or [| for piece in pieces do
-                                        yield And [| Eq varPieces.[0].[n] (Int piece.RotationId bitSize);
-                                                     Or (piece.Left |> findRight |> Array.filter (fun piece -> piece.Up = 'X') |> Array.map (fun piece -> Eq varPieces.[0].[n - 1] (Int piece.RotationId bitSize)));
-                                                     Or (piece.Down |> findUp |> Array.filter (fun piece -> piece.Right = 'X') |> Array.map (fun piece -> Eq varPieces.[1].[n] (Int piece.RotationId bitSize))) 
-                                                  |]
-                                 |]
-                    | i, 0 when i = n ->
-                        let pieces = pieces |> Array.filter (fun piece -> piece.Down = 'X' && piece.Left = 'X')
-                        yield Or [| for piece in pieces do
-                                        yield And [| Eq varPieces.[n].[0] (Int piece.RotationId bitSize);
-                                                     Or (piece.Up |> findDown |> Array.filter (fun piece -> piece.Left = 'X') |> Array.map (fun piece -> Eq varPieces.[n - 1].[0] (Int piece.RotationId bitSize)));
-                                                     Or (piece.Right |> findLeft |> Array.filter (fun piece -> piece.Down = 'X') |> Array.map (fun piece -> Eq varPieces.[n].[1] (Int piece.RotationId bitSize))) 
-                                                  |]
-                                 |]
-                    | i, j when i = n && j = n -> 
-                        let pieces = pieces |> Array.filter (fun piece -> piece.Down = 'X' && piece.Right = 'X')
-                        yield Or [| for piece in pieces do
-                                        yield And [| Eq varPieces.[n].[n] (Int piece.RotationId bitSize);
-                                                     Or (piece.Up |> findDown |> Array.filter (fun piece -> piece.Right = 'X') |> Array.map (fun piece -> Eq varPieces.[n - 1].[n] (Int piece.RotationId bitSize)));
-                                                     Or (piece.Left |> findRight |> Array.filter (fun piece -> piece.Down = 'X') |> Array.map (fun piece -> Eq varPieces.[n].[n - 1] (Int piece.RotationId bitSize))) 
-                                                  |]
-                                 |]
-                    | 0, j ->
-                        let pieces = pieces |> Array.filter (fun piece -> piece.Up = 'X' )
-                        yield Or [| for piece in pieces do
-                                        yield And [| Eq varPieces.[0].[j] (Int piece.RotationId bitSize);
-                                                     Or (piece.Down |> findUp |> Array.map (fun piece -> Eq varPieces.[1].[j] (Int piece.RotationId bitSize)))
-                                                     Or (piece.Left |> findRight |> Array.filter (fun piece -> piece.Up = 'X') |> Array.map (fun piece -> Eq varPieces.[0].[j - 1] (Int piece.RotationId bitSize)));
-                                                     Or (piece.Right |> findLeft |> Array.filter (fun piece -> piece.Up = 'X') |> Array.map (fun piece -> Eq varPieces.[0].[j + 1] (Int piece.RotationId bitSize))) |]
-                                 |]
-                    | i, 0 ->
-                        let pieces = pieces |> Array.filter (fun piece -> piece.Left = 'X' )
-                        yield Or [| for piece in pieces do
-                                        yield And [| Eq varPieces.[i].[0] (Int piece.RotationId bitSize);
-                                                     Or (piece.Right |> findLeft |> Array.map (fun piece -> Eq varPieces.[i].[1] (Int piece.RotationId bitSize)))
-                                                     Or (piece.Up |> findDown |> Array.filter (fun piece -> piece.Left = 'X') |> Array.map (fun piece -> Eq varPieces.[i - 1].[0] (Int piece.RotationId bitSize)));
-                                                     Or (piece.Down |> findUp |> Array.filter (fun piece -> piece.Left = 'X') |> Array.map (fun piece -> Eq varPieces.[i + 1].[0] (Int piece.RotationId bitSize))) |]
-                                 |]
-                    | i, j when i = n ->
-                        let pieces = pieces |> Array.filter (fun piece -> piece.Down = 'X' )
-                        yield Or [| for piece in pieces do
-                                        yield And [| Eq varPieces.[n].[j] (Int piece.RotationId bitSize);
-                                                     Or (piece.Up |> findDown |> Array.map (fun piece -> Eq varPieces.[n - 1].[j] (Int piece.RotationId bitSize)))
-                                                     Or (piece.Left |> findRight |> Array.filter (fun piece -> piece.Down = 'X') |> Array.map (fun piece -> Eq varPieces.[n].[j - 1] (Int piece.RotationId bitSize)));
-                                                     Or (piece.Right |> findLeft |> Array.filter (fun piece -> piece.Down = 'X') |> Array.map (fun piece -> Eq varPieces.[n].[j + 1] (Int piece.RotationId bitSize))) |]
-                                 |]
-                    | i, j when j = n ->
-                        let pieces = pieces |> Array.filter (fun piece -> piece.Right = 'X' )
-                        yield Or [| for piece in pieces do
-                                        yield And [| Eq varPieces.[i].[n] (Int piece.RotationId bitSize);
-                                                     Or (piece.Left |> findRight |> Array.map (fun piece -> Eq varPieces.[i].[n - 1] (Int piece.RotationId bitSize)))
-                                                     Or (piece.Up |> findDown |> Array.filter (fun piece -> piece.Right = 'X') |> Array.map (fun piece -> Eq varPieces.[i - 1].[n] (Int piece.RotationId bitSize)));
-                                                     Or (piece.Down |> findUp |> Array.filter (fun piece -> piece.Right = 'X') |> Array.map (fun piece -> Eq varPieces.[i + 1].[n] (Int piece.RotationId bitSize))) |]
-                                 |]
-                    | i, j -> 
-                        let pieces = pieces |> Array.filter (fun piece -> piece.Up <> 'X' && piece.Down <> 'X' && piece.Left <> 'X' && piece.Right <> 'X' )
-                        yield Or [| for piece in pieces do
-                                        yield And [| Eq varPieces.[i].[j] (Int piece.RotationId bitSize);
-                                                     Or (piece.Up |> findDown |> Array.map (fun piece -> Eq varPieces.[i - 1].[j] (Int piece.RotationId bitSize)))
-                                                     Or (piece.Down |> findUp |> Array.map (fun piece -> Eq varPieces.[i + 1].[j] (Int piece.RotationId bitSize)));
-                                                     Or (piece.Left |> findRight |> Array.map (fun piece -> Eq varPieces.[i].[j - 1] (Int piece.RotationId bitSize)));
-                                                     Or (piece.Right |> findLeft |> Array.map (fun piece -> Eq varPieces.[i].[j + 1] (Int piece.RotationId bitSize))) |]
-                                 |]
+            for j in {0..n} do 
+                let piece = board.[i].[j]
+                match i, j with
+                | 0, 0 -> 
+                    yield And [| Eq piece.UpVar (Int (colorInt 'X') colorBitSize);
+                                 Eq piece.LeftVar (Int (colorInt 'X') colorBitSize);
+                                 Eq piece.RightVar board.[0].[1].LeftVar;
+                                 Eq piece.DownVar board.[1].[0].UpVar; |]
+                | 0, j when j = n -> 
+                    yield And [| Eq piece.UpVar (Int (colorInt 'X') colorBitSize);
+                                 Eq piece.RightVar (Int (colorInt 'X') colorBitSize);
+                                 Eq piece.LeftVar board.[0].[n - 1].RightVar;
+                                 Eq piece.DownVar board.[1].[n].UpVar; |]
+                | i, 0 when i = n -> 
+                    yield And [| Eq piece.DownVar (Int (colorInt 'X') colorBitSize);
+                                 Eq piece.LeftVar (Int (colorInt 'X') colorBitSize);
+                                 Eq piece.RightVar board.[n].[1].LeftVar;
+                                 Eq piece.UpVar board.[n - 1].[0].DownVar; |]
+                | i, j when i = n && j = n -> 
+                    yield And [| Eq piece.DownVar (Int (colorInt 'X') colorBitSize);
+                                 Eq piece.RightVar (Int (colorInt 'X') colorBitSize);
+                                 Eq piece.LeftVar board.[n].[n - 1].RightVar;
+                                 Eq piece.UpVar board.[n - 1].[n].DownVar; |]
+                | 0, j -> 
+                    yield And [| Eq piece.DownVar board.[i + 1].[j].UpVar;
+                                 Eq piece.RightVar board.[i].[j + 1].LeftVar;
+                                 Eq piece.LeftVar board.[i].[j - 1].RightVar;
+                                 Eq piece.UpVar (Int (colorInt 'X') colorBitSize); |]
+                | i, 0 -> 
+                    yield And [| Eq piece.DownVar board.[i + 1].[j].UpVar;
+                                 Eq piece.RightVar board.[i].[j + 1].LeftVar;
+                                 Eq piece.LeftVar (Int (colorInt 'X') colorBitSize);
+                                 Eq piece.UpVar board.[i - 1].[j].DownVar; |]
+                | i, j when i = n -> 
+                    yield And [| Eq piece.DownVar (Int (colorInt 'X') colorBitSize);
+                                 Eq piece.RightVar board.[i].[j + 1].LeftVar;
+                                 Eq piece.LeftVar board.[i].[j - 1].RightVar;
+                                 Eq piece.UpVar board.[i - 1].[j].DownVar; |]
+                | i, j when j = n -> 
+                    yield And [| Eq piece.DownVar board.[i + 1].[j].UpVar;
+                                 Eq piece.RightVar (Int (colorInt 'X') colorBitSize);
+                                 Eq piece.LeftVar board.[i].[j - 1].RightVar;
+                                 Eq piece.UpVar board.[i - 1].[j].DownVar; |]
+                | i, j -> 
+                    yield And [| Eq piece.DownVar board.[i + 1].[j].UpVar;
+                                 Eq piece.RightVar board.[i].[j + 1].LeftVar;
+                                 Eq piece.LeftVar board.[i].[j - 1].RightVar;
+                                 Eq piece.UpVar board.[i - 1].[j].DownVar; |]
+    }
+
+
+
+let constraints : BoolExpr[][] = 
+    let n = dim - 1
+    let collect : int -> int -> (int * Piece[]) [] -> BoolExpr = fun i j pieces ->
+        Or [| for (index, pieces) in pieces do
+                let eqs = [| for piece in pieces do yield equalColors piece board.[i].[j] |]
+                yield Ite (Eq (Int index bitSize) varPieces.[i].[j]) (Or eqs) False :?> BoolExpr
+           |]
+    [| for i in {0..n} do
+        yield 
+            [| for j in {0..n} do 
+                match i, j with
+                | 0, 0 -> 
+                    let pieces = pieces |> Array.filter (fun piece -> piece.Up = 'X' && piece.Left = 'X') |> Array.groupBy (fun piece -> piece.Id)
+                    printfn "%A" pieces
+                    yield collect i j pieces
+                | 0, j when j = n -> 
+                    let pieces = pieces |> Array.filter (fun piece -> piece.Up = 'X' && piece.Right = 'X') |> Array.groupBy (fun piece -> piece.Id)
+                    yield collect i j pieces
+                | i, 0 when i = n ->
+                    let pieces = pieces |> Array.filter (fun piece -> piece.Down = 'X' && piece.Left = 'X') |> Array.groupBy (fun piece -> piece.Id)
+                    yield collect i j pieces
+                | i, j when i = n && j = n -> 
+                    let pieces = pieces |> Array.filter (fun piece -> piece.Down = 'X' && piece.Right = 'X') |> Array.groupBy (fun piece -> piece.Id)
+                    yield collect i j pieces
+                | 0, j ->
+                    let pieces = pieces |> Array.filter (fun piece -> piece.Up = 'X' ) |> Array.groupBy (fun piece -> piece.Id)
+                    yield collect i j pieces
+                | i, 0 ->
+                    let pieces = pieces |> Array.filter (fun piece -> piece.Left = 'X' ) |> Array.groupBy (fun piece -> piece.Id)
+                    yield collect i j pieces
+                | i, j when i = n ->
+                    let pieces = pieces |> Array.filter (fun piece -> piece.Down = 'X' ) |> Array.groupBy (fun piece -> piece.Id)
+                    yield collect i j pieces
+                | i, j when j = n ->
+                    let pieces = pieces |> Array.filter (fun piece -> piece.Right = 'X' ) |> Array.groupBy (fun piece -> piece.Id)
+                    yield collect i j pieces
+                | i, j -> 
+                    let pieces = pieces |> Array.filter (fun piece -> piece.Up <> 'X' && piece.Down <> 'X' && piece.Left <> 'X' && piece.Right <> 'X' ) |> Array.groupBy (fun piece -> piece.Id)
+                    yield collect i j pieces
+            |]
+    |]
+
+
+let distinctPieces = varPieces |> Array.collect id |> Array.map (fun v -> v :> Expr) |> Distinct
+
+let distinct : seq<seq<BoolExpr>> = 
+    let pieces = varPieces |> Array.collect id
+    seq {
+        for i = 0 to pieces.Length - 1 do
+            yield seq {
+                for j = i + 1 to pieces.Length - 1 do
+                    yield  Not <| Eq pieces.[i] pieces.[j]
+            }
     } |> Seq.cache
 
 
-let distinctPieces = tempVars |> Array.collect id |> Array.map (fun v -> v :> Expr) |> Distinct
 
 let solver = ctx.MkSolver("QF_BV")
 
-solver.Add(validValues)
-//solver.Add(distinctPieces)
-//solver.Add(And (constraints |> Array.ofSeq))
+if dim = 16 then
+    solver.Add(Eq varPieces.[7].[8] (Int 138 bitSize))
+
+let solve : string -> unit = fun name -> 
+    let watch = System.Diagnostics.Stopwatch.StartNew()
+    let r = solver.Check()
+    printfn "%s - %A - %A - %A" name r watch.Elapsed DateTime.Now 
+
+solver.Add(validPieces)
+solver.Add(colorConstraints)
+solver.Add(distinctPieces)
+//solver.Add(And (constraints |> Seq.collect id |> Array.ofSeq))
 
 let r = solver.Check()
 
-for i = 1 to dim * dim do
-    solver.Add(constraints |> Seq.take i |> Seq.last)
-    let watch = System.Diagnostics.Stopwatch.StartNew()
-    let r = solver.Check()
-    printfn "%d - %A - %A - %A" i r watch.Elapsed DateTime.Now 
+for i = 0 to dim - 1 do
+    for j = 0 to dim - 1 do
+        solver.Add(constraints.[i].[j])
+        solve (sprintf "constraints %d-%d" i j)
+
 
 if r = Status.SATISFIABLE then
 
@@ -321,18 +368,10 @@ if r = Status.SATISFIABLE then
 
     for i in {0..dim - 1} do
         for j in {0..dim - 1} do
-            let value = string <| model.Evaluate(IntVar (sprintf "RotPiece_%d_%d" i j) bitSize)
-            printf "%s " value
+            let piece = board.[i].[j]
+            let up = Int32.Parse(string <| model.Evaluate(piece.UpVar))
+            let down = Int32.Parse(string <| model.Evaluate(piece.DownVar))
+            let left = Int32.Parse(string <| model.Evaluate(piece.LeftVar))
+            let right = Int32.Parse(string <| model.Evaluate(piece.RightVar))
+            printf "%s " <| new String([|intColor up; intColor right; intColor down; intColor left|])
         printfn ""
-
-    printfn ""
-
-    for i in {0..dim - 1} do
-        for j in {0..dim - 1} do
-            let value = Int32.Parse(string <| model.Evaluate(IntVar (sprintf "RotPiece_%d_%d" i j) bitSize))
-            let piece = pieces |> Array.collect (fun piece -> piece) |> Array.find (fun piece -> piece.RotationId = value)
-            printf "%s " <| strPiece piece
-        printfn ""
-
-
-
