@@ -12,9 +12,8 @@ open System.Collections.Generic
 open Microsoft.Z3
 
 
-let setTimeout : float -> unit = fun secs -> 
-    let timeout = TimeSpan.FromSeconds(secs).TotalMilliseconds
-    Microsoft.Z3.Global.SetParameter("timeout", string timeout)
+let setTimeout : TimeSpan -> unit = fun timeout -> 
+    Microsoft.Z3.Global.SetParameter("timeout", string timeout.TotalMilliseconds)
 
 Microsoft.Z3.Global.ToggleWarningMessages(true)
 Microsoft.Z3.Global.SetParameter("parallel.enable", "false")
@@ -23,6 +22,13 @@ Microsoft.Z3.Global.SetParameter("model_validate", "true")
 //setTimeout(120.0)
 Microsoft.Z3.Global.SetParameter("model", "true")
 printfn "%s" <| Microsoft.Z3.Version.ToString()
+
+setTimeout(TimeSpan.FromMinutes(10.0))
+
+let rand = new System.Random()
+let randoms : int -> int -> seq<int> = fun min max ->
+    seq { while true do
+            yield rand.Next(min, max + 1) }
 
 let ctx = new Context()
 
@@ -65,39 +71,39 @@ let colorInt : char -> int = fun c -> (int c) - (int 'A')
 let intColor : int -> char = fun i -> char ((int 'A') + i)
 
 
-let dim = 4
-let puzzle = [|"YXXB"; "YBXX"; "XBBX"; "XYYX"; "UUUP"; "PUPP"; "UUPP"; "UUPP"; 
-               "YXYP"; "BXBP"; "YXBP"; "BXYP"; "YXYU"; "BXBU"; "BXYU"; "YXBU"|]
-//let dim = 16
+//let dim = 4
+//let puzzle = [|"YXXB"; "YBXX"; "XBBX"; "XYYX"; "UUUP"; "PUPP"; "UUPP"; "UUPP"; 
+//               "YXYP"; "BXBP"; "YXBP"; "BXYP"; "YXYU"; "BXBU"; "BXYU"; "YXBU"|]
+let dim = 16
 
 // https://github.com/AntonFagerberg/Eternity-II-Solver/blob/master/src/main/scala/com/example/Game.scala
 // directions: up, right, down, left
-//let puzzle = [| "AQXX"; "AEXX"; "IQXX"; "QIXX"; "BAXA"; "JIXA"; "FAXA"; "FMXA"; "KQXA"; "GEXA";
-//                "OIXA"; "HEXA"; "HMXA"; "UEXA"; "JAXI"; "RQXI"; "NMXI"; "SMXI"; "GIXI"; "OIXI";
-//                "DEXI"; "LAXI"; "LMXI"; "TAXI"; "UAXI"; "BIXQ"; "BQXQ"; "JQXQ"; "RQXQ"; "GMXQ";
-//                "OIXQ"; "TQXQ"; "HIXQ"; "HEXQ"; "PMXQ"; "VEXQ"; "RAXE"; "CMXE"; "KMXE"; "SIXE";
-//                "SQXE"; "OAXE"; "OIXE"; "OQXE"; "DAXE"; "TEXE"; "HEXE"; "PEXE"; "BMXM"; "JAXM";
-//                "JIXM"; "FAXM"; "GEXM"; "DEXM"; "DMXM"; "HQXM"; "PAXM"; "PMXM"; "UIXM"; "VQXM";
-//                "FRBB"; "NGBB"; "JCBJ"; "BHBR"; "RVBR"; "NNBR"; "KJBR"; "TFBR"; "VHBR"; "CGBC";
-//                "GLBC"; "NRBK"; "ODBK"; "TOBK"; "HCBK"; "NOBS"; "SOBS"; "CPBG"; "TCBG"; "PUBG";
-//                "SRBO"; "RRBD"; "KDBD"; "RSBL"; "FNBL"; "HLBL"; "PTBL"; "BUBT"; "FVBT"; "DPBT";
-//                "KLBH"; "SOBH"; "SDBH"; "DUBH"; "LNBH"; "UCBU"; "DSBV"; "THBV"; "UFBV"; "VUBV";
-//                "LOJJ"; "LPJJ"; "PSJJ"; "VFJJ"; "DOJR"; "CHJF"; "SHJF"; "DOJF"; "PKJF"; "OLJN";
-//                "LOJN"; "TSJC"; "TPJC"; "NDJK"; "GLJK"; "LKJK"; "VPJK"; "CUJS"; "PLJG"; "HVJO";
-//                "NVJD"; "FPJT"; "NSJT"; "TOJT"; "LVJH"; "UOJH"; "NFJP"; "SUJP"; "DCJP"; "THJP";
-//                "FTJU"; "LNJU"; "NPJV"; "KDJV"; "DCJV"; "PTJV"; "TGRR"; "FCRF"; "FKRF"; "FLRF";
-//                "SURF"; "OFRF"; "PLRF"; "UURF"; "CDRN"; "RLRC"; "RVRC"; "CNRC"; "OLRC"; "FKRS";
-//                "DVRS"; "KKRG"; "KSRG"; "VPRG"; "GGRD"; "GLRD"; "VGRD"; "GPRT"; "HFRT"; "UURH";
-//                "FTRP"; "NTRP"; "OKRV"; "DPRV"; "CDFN"; "DHFN"; "CCFK"; "KOFS"; "SUFS"; "DHFG";
-//                "TPFG"; "UKFG"; "OOFO"; "LTFO"; "GUFD"; "GSFL"; "NDFT"; "LPFH"; "HOFH"; "GPFP";
-//                "KPFU"; "GKFU"; "SHNN"; "VGNC"; "SLNK"; "HHNK"; "UGNS"; "NUNG"; "CSNG"; "PSNG";
-//                "CCNO"; "OTNO"; "KGND"; "UKNL"; "UVNL"; "VONL"; "KVNT"; "SHNT"; "TTNT"; "SCNH";
-//                "UHNP"; "VGNP"; "LSNU"; "LHNU"; "PCNU"; "VUNU"; "VGCC"; "SVCK"; "HOCK"; "KSCG";
-//                "POCG"; "CPCO"; "HHCD"; "CTCL"; "DVCL"; "VUCL"; "SOCT"; "DLCP"; "KDCU"; "KPCV";
-//                "UUCV"; "UVCV"; "LVKK"; "TGKK"; "POKK"; "SOKG"; "LLKG"; "SHKD"; "GVKT"; "PHKT";
-//                "LTKH"; "LUKH"; "STSS"; "PDSG"; "GDSD"; "GTSD"; "LOSD"; "DPSL"; "OVST"; "UOST";
-//                "GUSH"; "DUSH"; "OLGO"; "THGO"; "VTGD"; "PVGU"; "UVOO"; "LDOD"; "DUOL"; "PUOT";
-//                "VHDD"; "HLDL"; "PTLH"; "UPTP"; "PVTV"; "UVHV" |]
+let puzzle = [| "AQXX"; "AEXX"; "IQXX"; "QIXX"; "BAXA"; "JIXA"; "FAXA"; "FMXA"; "KQXA"; "GEXA";
+                "OIXA"; "HEXA"; "HMXA"; "UEXA"; "JAXI"; "RQXI"; "NMXI"; "SMXI"; "GIXI"; "OIXI";
+                "DEXI"; "LAXI"; "LMXI"; "TAXI"; "UAXI"; "BIXQ"; "BQXQ"; "JQXQ"; "RQXQ"; "GMXQ";
+                "OIXQ"; "TQXQ"; "HIXQ"; "HEXQ"; "PMXQ"; "VEXQ"; "RAXE"; "CMXE"; "KMXE"; "SIXE";
+                "SQXE"; "OAXE"; "OIXE"; "OQXE"; "DAXE"; "TEXE"; "HEXE"; "PEXE"; "BMXM"; "JAXM";
+                "JIXM"; "FAXM"; "GEXM"; "DEXM"; "DMXM"; "HQXM"; "PAXM"; "PMXM"; "UIXM"; "VQXM";
+                "FRBB"; "NGBB"; "JCBJ"; "BHBR"; "RVBR"; "NNBR"; "KJBR"; "TFBR"; "VHBR"; "CGBC";
+                "GLBC"; "NRBK"; "ODBK"; "TOBK"; "HCBK"; "NOBS"; "SOBS"; "CPBG"; "TCBG"; "PUBG";
+                "SRBO"; "RRBD"; "KDBD"; "RSBL"; "FNBL"; "HLBL"; "PTBL"; "BUBT"; "FVBT"; "DPBT";
+                "KLBH"; "SOBH"; "SDBH"; "DUBH"; "LNBH"; "UCBU"; "DSBV"; "THBV"; "UFBV"; "VUBV";
+                "LOJJ"; "LPJJ"; "PSJJ"; "VFJJ"; "DOJR"; "CHJF"; "SHJF"; "DOJF"; "PKJF"; "OLJN";
+                "LOJN"; "TSJC"; "TPJC"; "NDJK"; "GLJK"; "LKJK"; "VPJK"; "CUJS"; "PLJG"; "HVJO";
+                "NVJD"; "FPJT"; "NSJT"; "TOJT"; "LVJH"; "UOJH"; "NFJP"; "SUJP"; "DCJP"; "THJP";
+                "FTJU"; "LNJU"; "NPJV"; "KDJV"; "DCJV"; "PTJV"; "TGRR"; "FCRF"; "FKRF"; "FLRF";
+                "SURF"; "OFRF"; "PLRF"; "UURF"; "CDRN"; "RLRC"; "RVRC"; "CNRC"; "OLRC"; "FKRS";
+                "DVRS"; "KKRG"; "KSRG"; "VPRG"; "GGRD"; "GLRD"; "VGRD"; "GPRT"; "HFRT"; "UURH";
+                "FTRP"; "NTRP"; "OKRV"; "DPRV"; "CDFN"; "DHFN"; "CCFK"; "KOFS"; "SUFS"; "DHFG";
+                "TPFG"; "UKFG"; "OOFO"; "LTFO"; "GUFD"; "GSFL"; "NDFT"; "LPFH"; "HOFH"; "GPFP";
+                "KPFU"; "GKFU"; "SHNN"; "VGNC"; "SLNK"; "HHNK"; "UGNS"; "NUNG"; "CSNG"; "PSNG";
+                "CCNO"; "OTNO"; "KGND"; "UKNL"; "UVNL"; "VONL"; "KVNT"; "SHNT"; "TTNT"; "SCNH";
+                "UHNP"; "VGNP"; "LSNU"; "LHNU"; "PCNU"; "VUNU"; "VGCC"; "SVCK"; "HOCK"; "KSCG";
+                "POCG"; "CPCO"; "HHCD"; "CTCL"; "DVCL"; "VUCL"; "SOCT"; "DLCP"; "KDCU"; "KPCV";
+                "UUCV"; "UVCV"; "LVKK"; "TGKK"; "POKK"; "SOKG"; "LLKG"; "SHKD"; "GVKT"; "PHKT";
+                "LTKH"; "LUKH"; "STSS"; "PDSG"; "GDSD"; "GTSD"; "LOSD"; "DPSL"; "OVST"; "UOST";
+                "GUSH"; "DUSH"; "OLGO"; "THGO"; "VTGD"; "PVGU"; "UVOO"; "LDOD"; "DUOL"; "PUOT";
+                "VHDD"; "HLDL"; "PTLH"; "UPTP"; "PVTV"; "UVHV" |]
 
 // https://github.com/vaga/Goternity/blob/master/assets/pieces.txt
 // directions: north, south, west, east 
@@ -273,13 +279,29 @@ let colorConstraints : seq<BoolExpr> =
     }
 
 
+let border : seq<bool> = 
+    let n = dim - 1
+    seq {
+        for i in {0..n} do
+            for j in {0..n} do 
+                    match i, j with
+                    | 0, 0 -> yield true
+                    | 0, j when j = n -> yield true
+                    | i, 0 when i = n -> yield true
+                    | i, j when i = n && j = n -> yield true
+                    | 0, j -> yield true
+                    | i, 0 -> yield true
+                    | i, j when i = n -> yield true
+                    | i, j when j = n -> yield true
+                    | i, j -> yield false
+    }
 
 let constraints : BoolExpr[][] = 
     let n = dim - 1
     let collect : int -> int -> (int * Piece[]) [] -> BoolExpr = fun i j pieces ->
         Or [| for (index, pieces) in pieces do
                 let eqs = [| for piece in pieces do yield equalColors piece board.[i].[j] |]
-                yield Ite (Eq (Int index bitSize) varPieces.[i].[j]) (Or eqs) False :?> BoolExpr
+                yield And [|  (Eq (Int index bitSize) varPieces.[i].[j]); (Or eqs) |]
            |]
     [| for i in {0..n} do
         yield 
@@ -287,7 +309,6 @@ let constraints : BoolExpr[][] =
                 match i, j with
                 | 0, 0 -> 
                     let pieces = pieces |> Array.filter (fun piece -> piece.Up = 'X' && piece.Left = 'X') |> Array.groupBy (fun piece -> piece.Id)
-                    printfn "%A" pieces
                     yield collect i j pieces
                 | 0, j when j = n -> 
                     let pieces = pieces |> Array.filter (fun piece -> piece.Up = 'X' && piece.Right = 'X') |> Array.groupBy (fun piece -> piece.Id)
@@ -316,9 +337,6 @@ let constraints : BoolExpr[][] =
             |]
     |]
 
-
-let distinctPieces = varPieces |> Array.collect id |> Array.map (fun v -> v :> Expr) |> Distinct
-
 let distinct : seq<seq<BoolExpr>> = 
     let pieces = varPieces |> Array.collect id
     seq {
@@ -336,26 +354,14 @@ let solver = ctx.MkSolver("QF_BV")
 if dim = 16 then
     solver.Add(Eq varPieces.[7].[8] (Int 138 bitSize))
 
-let solve : string -> unit = fun name -> 
-    let watch = System.Diagnostics.Stopwatch.StartNew()
-    let r = solver.Check()
-    printfn "%s - %A - %A - %A" name r watch.Elapsed DateTime.Now 
+let getModelPieces : Model -> seq<int> = fun model ->
+    seq {
+        for i in {0..dim - 1} do
+        for j in {0..dim - 1} do
+            yield Int32.Parse(string <| model.Evaluate(IntVar (sprintf "Piece_%d_%d" i j) bitSize))
+    } |> Seq.cache
 
-solver.Add(validPieces)
-solver.Add(colorConstraints)
-solver.Add(distinctPieces)
-//solver.Add(And (constraints |> Seq.collect id |> Array.ofSeq))
-
-let r = solver.Check()
-
-for i = 0 to dim - 1 do
-    for j = 0 to dim - 1 do
-        solver.Add(constraints.[i].[j])
-        solve (sprintf "constraints %d-%d" i j)
-
-
-if r = Status.SATISFIABLE then
-
+let printSat () = 
     let model = solver.Model
 
     for i in {0..dim - 1} do
@@ -375,3 +381,33 @@ if r = Status.SATISFIABLE then
             let right = Int32.Parse(string <| model.Evaluate(piece.RightVar))
             printf "%s " <| new String([|intColor up; intColor right; intColor down; intColor left|])
         printfn ""
+
+
+let solve : string -> BoolExpr[] -> Status = fun name fixedPieces -> 
+    let watch = System.Diagnostics.Stopwatch.StartNew()
+    let r = solver.Check(fixedPieces)
+    printfn "%s - %A - %A - %A" name r watch.Elapsed DateTime.Now 
+    r
+
+solver.Add(validPieces)
+solver.Add(colorConstraints)
+
+let r = solver.Check()
+
+let boardConstraints = (distinct, constraints |> Array.collect id) ||> Seq.zip
+for (i, d, c) in boardConstraints |> Seq.mapi (fun i (d, c) -> (i, d, c)) do
+        let xs = getModelPieces solver.Model |> Seq.take i |> Array.ofSeq
+        solver.Add(d)
+        solver.Add(c)
+        let pieces = varPieces |> Array.collect id
+        let mutable r = solve (sprintf "constraints %d" i) ((xs, pieces |> Array.take i) ||> Array.zip |> Array.map (fun (x, p) -> Eq (Int x bitSize) p))
+        let mutable k = i
+        while r = Status.UNSATISFIABLE || r = Status.UNKNOWN do
+            k <- k - 1
+            r <- solve (sprintf "constraints %d - %d" i k) ((xs |> Array.take k, pieces |> Array.take k) ||> Array.zip |> Array.map (fun (x, p) -> Eq (Int x bitSize) p))
+        ()
+        
+        
+
+printSat()
+
