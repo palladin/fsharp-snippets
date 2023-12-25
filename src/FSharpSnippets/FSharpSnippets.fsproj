@@ -129,6 +129,7 @@
     <None Include="Eternity2.fsx" />
     <None Include="Eff.fsx" />
     <None Include="YIntensional.fsx" />
+    <None Include="LazyBFSTreeLabeling.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Compiler.Service">
