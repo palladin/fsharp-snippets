@@ -130,6 +130,7 @@
     <None Include="Eff.fsx" />
     <None Include="YIntensional.fsx" />
     <None Include="LazyBFSTreeLabeling.fsx" />
+    <None Include="LazyGenNameLambda.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Compiler.Service">
