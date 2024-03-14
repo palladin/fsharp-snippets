@@ -1,6 +1,6 @@
 ﻿// An old solution of mine to Erik Lippert's Comma Quibbling challenge. I really like this snippet because it shows that with F# we can hack elegant but also fast code.
 
-// http://blogs.msdn.com/b/ericlippert/archive/2009/04/15/comma-quibbling.aspx
+// https://web.archive.org/web/20130202122134/http://blogs.msdn.com/b/ericlippert/archive/2009/04/15/comma-quibbling.aspx
 
 #time
 #r "packages/FSPowerPack.Core.Community.2.0.0.0/Lib/Net40/FSharp.PowerPack.dll"
